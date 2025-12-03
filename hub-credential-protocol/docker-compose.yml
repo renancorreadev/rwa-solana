@@ -1,0 +1,52 @@
+services:
+  # KYC API Service
+  kyc-api:
+    build:
+      context: ./services/kyc-api
+      dockerfile: Dockerfile
+    container_name: hub-kyc-api
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-http://host.docker.internal:8899}
+      - SOLANA_NETWORK=${SOLANA_NETWORK:-localnet}
+      - CREDENTIAL_PROGRAM_ID=FaJ4XGCLeu7eZiMjBEkANko3TRhpjns3cv6R1vZK94Wt
+      - JWT_SECRET=${JWT_SECRET:-change-this-in-production}
+      - JWT_EXPIRES_IN=24h
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:8080
+      - ISSUER_PRIVATE_KEY=2QUFLadp6A3zo5aCHxoXs5ADwbTeQRNJVZ4SpcknqTLRSGGg44k4pcTiNnD956A1z3ECRp2Hqc4sYvdyeY5KyeMZ
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hub-network
+
+  # Credential Frontend App
+  credential-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: hub-credential-app
+    ports:
+      - "8080:80"
+    depends_on:
+      - kyc-api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    networks:
+      - hub-network
+
+networks:
+  hub-network:
+    driver: bridge

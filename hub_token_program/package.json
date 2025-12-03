@@ -1,0 +1,38 @@
+{
+  "name": "hub-token",
+  "version": "1.0.0",
+  "description": "Real Estate Tokenization Platform powered by Solana",
+  "private": true,
+  "workspaces": [
+    "hub_token_program",
+    "services",
+    "app"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:services\" \"npm run dev:app\"",
+    "dev:services": "npm run dev --workspace=services",
+    "dev:app": "npm run dev --workspace=app",
+    "build": "npm run build --workspaces",
+    "build:program": "cd hub_token_program && anchor build",
+    "test:program": "cd hub_token_program && anchor test",
+    "deploy:devnet": "cd hub_token_program && anchor deploy --provider.cluster devnet",
+    "lint": "npm run lint --workspaces --if-present",
+    "install:all": "npm install && npm install --workspace=services && npm install --workspace=app"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "solana",
+    "blockchain",
+    "real-estate",
+    "tokenization",
+    "rwa",
+    "defi"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,292 @@
+/* Hub Credential Protocol Demo App Styles */
+
+:root {
+  --hcp-primary: #6366f1;
+  --hcp-primary-hover: #4f46e5;
+  --hcp-bg: #0f0f23;
+  --hcp-surface: #1a1a2e;
+  --hcp-text: #ffffff;
+  --hcp-text-secondary: #a0a0a0;
+  --hcp-border: #333355;
+  --hcp-success: #10b981;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--hcp-bg);
+  color: var(--hcp-text);
+  line-height: 1.6;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: var(--hcp-surface);
+  border-bottom: 1px solid var(--hcp-border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--hcp-text);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.logo svg {
+  color: var(--hcp-primary);
+}
+
+.app-main {
+  flex: 1;
+  padding: 40px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff, #a0a0a0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 20px;
+  color: var(--hcp-text-secondary);
+}
+
+.demo-section {
+  margin-bottom: 80px;
+}
+
+.demo-section h2 {
+  font-size: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.demo-card {
+  background: var(--hcp-surface);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--hcp-border);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.protected-content h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.protected-content > p {
+  color: var(--hcp-text-secondary);
+  margin-bottom: 24px;
+}
+
+.investment-details {
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail:last-child {
+  border-bottom: none;
+}
+
+.detail .label {
+  color: var(--hcp-text-secondary);
+}
+
+.detail .value {
+  font-weight: 600;
+}
+
+.invest-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--hcp-primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.invest-btn:hover {
+  background: var(--hcp-primary-hover);
+}
+
+/* Credential Gate Styles */
+.hcp-gate-loading,
+.hcp-gate-blocked {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.hcp-gate-loading .hcp-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--hcp-border);
+  border-top-color: var(--hcp-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.hcp-gate-loading p {
+  color: var(--hcp-text-secondary);
+}
+
+.hcp-gate-icon {
+  margin-bottom: 20px;
+}
+
+.hcp-gate-blocked h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.hcp-gate-blocked p {
+  color: var(--hcp-text-secondary);
+  margin-bottom: 24px;
+}
+
+.hcp-gate-blocked .hcp-btn {
+  padding: 14px 32px;
+  background: var(--hcp-primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hcp-gate-blocked .hcp-btn:hover {
+  background: var(--hcp-primary-hover);
+}
+
+/* Features Section */
+.features {
+  text-align: center;
+}
+
+.features h2 {
+  font-size: 32px;
+  margin-bottom: 40px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.feature {
+  background: var(--hcp-surface);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--hcp-border);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--hcp-primary), #8b5cf6);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: white;
+}
+
+.feature h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.feature p {
+  color: var(--hcp-text-secondary);
+  font-size: 14px;
+}
+
+/* Wallet Adapter Button Override */
+.wallet-adapter-button {
+  background: var(--hcp-primary) !important;
+  border-radius: 12px !important;
+  padding: 10px 20px !important;
+  font-weight: 500 !important;
+}
+
+.wallet-adapter-button:hover {
+  background: var(--hcp-primary-hover) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .app-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}

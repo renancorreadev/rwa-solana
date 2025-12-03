@@ -1,0 +1,1866 @@
+{
+  "address": "FDfkSAAqk8uweJusJb8MSNRHXGRvFqokNfjw9m8ve6om",
+  "metadata": {
+    "name": "hub_token_program",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "burn_property_tokens",
+      "docs": [
+        "Burn property tokens (redemption/exit)",
+        "",
+        "Allows investors to burn their tokens, reducing circulating supply.",
+        "",
+        "# Arguments",
+        "* `amount` - Number of tokens to burn"
+      ],
+      "discriminator": [
+        179,
+        213,
+        115,
+        239,
+        238,
+        103,
+        88,
+        92
+      ],
+      "accounts": [
+        {
+          "name": "investor",
+          "docs": [
+            "Investor burning their tokens"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "property_state",
+          "docs": [
+            "PropertyState PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  112,
+                  101,
+                  114,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The property token mint (Token-2022)"
+          ],
+          "writable": true,
+          "relations": [
+            "property_state"
+          ]
+        },
+        {
+          "name": "investor_token_account",
+          "docs": [
+            "Investor's token account"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claim_revenue",
+      "docs": [
+        "Claim proportional share of revenue for an epoch",
+        "",
+        "Token holders call this to receive their dividend based on their",
+        "token balance at the time of deposit.",
+        "",
+        "# Calculation",
+        "`claim_amount = (investor_balance / eligible_supply) * total_revenue`",
+        "",
+        "# Access Control",
+        "- Must hold property tokens",
+        "- Can only claim each epoch once",
+        "- Epoch must be finalized"
+      ],
+      "discriminator": [
+        4,
+        22,
+        151,
+        70,
+        183,
+        79,
+        73,
+        189
+      ],
+      "accounts": [
+        {
+          "name": "investor",
+          "docs": [
+            "Investor claiming their share"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "property_state",
+          "docs": [
+            "PropertyState"
+          ]
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The property mint"
+          ]
+        },
+        {
+          "name": "investor_token_account",
+          "docs": [
+            "Investor's token account - to verify balance"
+          ]
+        },
+        {
+          "name": "revenue_epoch",
+          "docs": [
+            "Revenue Epoch being claimed from"
+          ]
+        },
+        {
+          "name": "claim_record",
+          "docs": [
+            "Claim Record PDA - proves investor hasn't claimed this epoch yet"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  108,
+                  97,
+                  105,
+                  109,
+                  95,
+                  114,
+                  101,
+                  99,
+                  111,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "revenue_epoch"
+              },
+              {
+                "kind": "account",
+                "path": "investor"
+              }
+            ]
+          }
+        },
+        {
+          "name": "revenue_vault",
+          "docs": [
+            "Revenue Vault PDA - holds the SOL"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  118,
+                  101,
+                  110,
+                  117,
+                  101,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "revenue_epoch"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_property_mint",
+      "docs": [
+        "Create a new property mint with TransferHook extension",
+        "",
+        "This is the recommended way to create a property as it:",
+        "1. Creates a Token-2022 mint with TransferHook extension",
+        "2. Initializes PropertyState PDA",
+        "3. Initializes ExtraAccountMetaList for transfer verification",
+        "",
+        "All subsequent transfers will automatically verify KYC via transfer_hook_execute.",
+        "",
+        "# Arguments",
+        "* `property_name` - Human-readable name (max 50 chars)",
+        "* `property_symbol` - Token ticker (max 10 chars)",
+        "* `decimals` - Token decimals (typically 6)",
+        "* `total_supply` - Maximum tokens that can be minted",
+        "* `property_details` - Metadata about the property"
+      ],
+      "discriminator": [
+        115,
+        149,
+        45,
+        204,
+        148,
+        152,
+        75,
+        196
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "docs": [
+            "Authority who will own the property"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The mint account to be created"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "property_state",
+          "docs": [
+            "PropertyState PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  112,
+                  101,
+                  114,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "extra_account_meta_list",
+          "docs": [
+            "ExtraAccountMetaList PDA for Transfer Hook"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "property_name",
+          "type": "string"
+        },
+        {
+          "name": "property_symbol",
+          "type": "string"
+        },
+        {
+          "name": "decimals",
+          "type": "u8"
+        },
+        {
+          "name": "total_supply",
+          "type": "u64"
+        },
+        {
+          "name": "property_details",
+          "type": {
+            "defined": {
+              "name": "PropertyDetails"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "deposit_revenue",
+      "docs": [
+        "Deposit rental revenue for distribution to token holders",
+        "",
+        "Creates a new revenue epoch and deposits SOL into the vault.",
+        "Token holders can then claim their proportional share.",
+        "",
+        "# Arguments",
+        "* `epoch_number` - Sequential epoch number for this distribution",
+        "* `amount` - Amount of SOL (in lamports) to deposit",
+        "",
+        "# Access Control",
+        "- Only property authority can deposit revenue",
+        "- Property must be active",
+        "- Must have token holders (circulating supply > 0)"
+      ],
+      "discriminator": [
+        224,
+        212,
+        82,
+        100,
+        60,
+        240,
+        220,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "docs": [
+            "Property authority depositing revenue"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "property_state",
+          "docs": [
+            "PropertyState - must be authority"
+          ]
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The property mint"
+          ]
+        },
+        {
+          "name": "revenue_epoch",
+          "docs": [
+            "Revenue Epoch PDA - created for each distribution period"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  118,
+                  101,
+                  110,
+                  117,
+                  101,
+                  95,
+                  101,
+                  112,
+                  111,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "property_state"
+              },
+              {
+                "kind": "arg",
+                "path": "epoch_number"
+              }
+            ]
+          }
+        },
+        {
+          "name": "revenue_vault",
+          "docs": [
+            "Revenue Vault PDA - holds the SOL for this epoch"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  118,
+                  101,
+                  110,
+                  117,
+                  101,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "revenue_epoch"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "epoch_number",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_extra_account_metas",
+      "docs": [
+        "Initialize the ExtraAccountMetaList for Transfer Hook",
+        "",
+        "This must be called after creating a mint with the TransferHook extension.",
+        "It defines which additional accounts are required during transfers",
+        "(specifically, the destination wallet's SAS attestation for KYC verification)."
+      ],
+      "discriminator": [
+        22,
+        213,
+        130,
+        114,
+        1,
+        174,
+        121,
+        36
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "extra_account_meta_list",
+          "docs": [
+            "ExtraAccountMetaList PDA to be initialized"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The mint this transfer hook is for"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "mint_property_tokens",
+      "docs": [
+        "Mint property tokens to an investor",
+        "",
+        "Requires valid KYC via SAS attestation.",
+        "Only the property authority can mint tokens.",
+        "",
+        "# Arguments",
+        "* `amount` - Number of tokens to mint",
+        "",
+        "# Security",
+        "- Verifies SAS attestation exists and is valid",
+        "- Checks attestation has not expired",
+        "- Ensures property is active",
+        "- Validates total supply limit"
+      ],
+      "discriminator": [
+        18,
+        120,
+        139,
+        138,
+        204,
+        210,
+        79,
+        55
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "docs": [
+            "Property authority (can mint tokens)"
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "property_state"
+          ]
+        },
+        {
+          "name": "investor",
+          "docs": [
+            "Investor receiving tokens (must have valid Hub Credential)"
+          ]
+        },
+        {
+          "name": "property_state",
+          "docs": [
+            "PropertyState PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  112,
+                  101,
+                  114,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The property token mint (Token-2022)"
+          ],
+          "writable": true,
+          "relations": [
+            "property_state"
+          ]
+        },
+        {
+          "name": "investor_token_account",
+          "docs": [
+            "Investor's token account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "investor"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "investor_credential",
+          "docs": [
+            "Hub Credential account for investor KYC",
+            "This account must be owned by HUB_CREDENTIAL_PROGRAM_ID and contain valid KYC credential"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "toggle_property_status",
+      "docs": [
+        "Toggle property active status",
+        "",
+        "Enables or disables token minting for this property.",
+        "Only the property authority can toggle status."
+      ],
+      "discriminator": [
+        26,
+        84,
+        185,
+        54,
+        72,
+        22,
+        70,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "property_state"
+          ]
+        },
+        {
+          "name": "property_state",
+          "docs": [
+            "PropertyState PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  112,
+                  101,
+                  114,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The property token mint (Token-2022)"
+          ],
+          "relations": [
+            "property_state"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_hook_execute",
+      "docs": [
+        "Transfer Hook Execute - KYC verification on transfers",
+        "",
+        "This instruction is automatically called by Token-2022 during every transfer.",
+        "It verifies that the destination wallet has valid KYC (SAS attestation).",
+        "",
+        "# Security",
+        "- Verifies SAS attestation exists for destination wallet",
+        "- Checks attestation has not expired",
+        "- Ensures destination is not a sanctioned wallet",
+        "- Blocks transfers to non-compliant wallets"
+      ],
+      "discriminator": [
+        96,
+        171,
+        172,
+        37,
+        86,
+        139,
+        6,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "source_account",
+          "docs": [
+            "Source token account (sender)"
+          ]
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The mint account"
+          ]
+        },
+        {
+          "name": "destination_account",
+          "docs": [
+            "Destination token account (receiver)"
+          ]
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "Owner of the source account (authority)"
+          ]
+        },
+        {
+          "name": "extra_account_meta_list",
+          "docs": [
+            "ExtraAccountMetaList PDA"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hub_credential",
+          "docs": [
+            "Hub Credential for destination wallet (KYC verification)",
+            "This is the Hub Credential that proves the destination wallet has completed KYC."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_property_details",
+      "docs": [
+        "Update property metadata",
+        "",
+        "Only the property authority can update details.",
+        "",
+        "# Arguments",
+        "* `new_details` - Updated property metadata"
+      ],
+      "discriminator": [
+        18,
+        112,
+        112,
+        73,
+        170,
+        14,
+        72,
+        133
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "property_state"
+          ]
+        },
+        {
+          "name": "property_state",
+          "docs": [
+            "PropertyState PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  112,
+                  101,
+                  114,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The property token mint (Token-2022)"
+          ],
+          "relations": [
+            "property_state"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_details",
+          "type": {
+            "defined": {
+              "name": "PropertyDetails"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ClaimRecord",
+      "discriminator": [
+        57,
+        229,
+        0,
+        9,
+        65,
+        62,
+        96,
+        7
+      ]
+    },
+    {
+      "name": "PropertyState",
+      "discriminator": [
+        207,
+        94,
+        222,
+        94,
+        178,
+        10,
+        5,
+        93
+      ]
+    },
+    {
+      "name": "RevenueEpoch",
+      "discriminator": [
+        92,
+        96,
+        185,
+        132,
+        167,
+        75,
+        54,
+        150
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ExtraAccountMetasInitialized",
+      "discriminator": [
+        171,
+        7,
+        254,
+        0,
+        117,
+        203,
+        227,
+        117
+      ]
+    },
+    {
+      "name": "HubCredentialVerified",
+      "discriminator": [
+        111,
+        196,
+        117,
+        172,
+        13,
+        136,
+        4,
+        196
+      ]
+    },
+    {
+      "name": "PropertyInitialized",
+      "discriminator": [
+        140,
+        125,
+        250,
+        1,
+        67,
+        188,
+        132,
+        137
+      ]
+    },
+    {
+      "name": "PropertyStatusChanged",
+      "discriminator": [
+        3,
+        79,
+        39,
+        97,
+        122,
+        115,
+        162,
+        24
+      ]
+    },
+    {
+      "name": "PropertyUpdated",
+      "discriminator": [
+        107,
+        88,
+        70,
+        90,
+        174,
+        85,
+        32,
+        96
+      ]
+    },
+    {
+      "name": "RevenueClaimed",
+      "discriminator": [
+        5,
+        254,
+        104,
+        87,
+        133,
+        137,
+        45,
+        116
+      ]
+    },
+    {
+      "name": "RevenueDeposited",
+      "discriminator": [
+        97,
+        189,
+        62,
+        159,
+        189,
+        208,
+        43,
+        181
+      ]
+    },
+    {
+      "name": "TokensBurned",
+      "discriminator": [
+        230,
+        255,
+        34,
+        113,
+        226,
+        53,
+        227,
+        9
+      ]
+    },
+    {
+      "name": "TokensMinted",
+      "discriminator": [
+        207,
+        212,
+        128,
+        194,
+        175,
+        54,
+        64,
+        24
+      ]
+    },
+    {
+      "name": "TransferKycVerified",
+      "discriminator": [
+        208,
+        142,
+        174,
+        141,
+        239,
+        221,
+        124,
+        215
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: Only property authority can perform this action"
+    },
+    {
+      "code": 6001,
+      "name": "PropertyNameTooLong",
+      "msg": "Property name too long (max 50 characters)"
+    },
+    {
+      "code": 6002,
+      "name": "PropertySymbolTooLong",
+      "msg": "Property symbol too long (max 10 characters)"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidTotalSupply",
+      "msg": "Invalid total supply: must be greater than zero"
+    },
+    {
+      "code": 6004,
+      "name": "ExceedsMaxSupply",
+      "msg": "Exceeds maximum supply: cannot mint more tokens than total supply"
+    },
+    {
+      "code": 6005,
+      "name": "PropertyNotActive",
+      "msg": "Property is not active: minting is disabled"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidMint",
+      "msg": "Invalid mint account"
+    },
+    {
+      "code": 6007,
+      "name": "KycVerificationRequired",
+      "msg": "KYC verification required: SAS attestation not found or invalid"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidRentalYield",
+      "msg": "Invalid rental yield: must be between 0 and 10000 basis points (0-100%)"
+    },
+    {
+      "code": 6009,
+      "name": "SasAttestationExpired",
+      "msg": "SAS attestation expired"
+    },
+    {
+      "code": 6010,
+      "name": "SasAttestationNotVerified",
+      "msg": "SAS attestation not verified"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidSasProgram",
+      "msg": "Invalid SAS program"
+    },
+    {
+      "code": 6012,
+      "name": "PropertyAddressTooLong",
+      "msg": "Property address too long"
+    },
+    {
+      "code": 6013,
+      "name": "PropertyTypeTooLong",
+      "msg": "Property type too long"
+    },
+    {
+      "code": 6014,
+      "name": "MetadataUriTooLong",
+      "msg": "Metadata URI too long"
+    },
+    {
+      "code": 6015,
+      "name": "InsufficientBalance",
+      "msg": "Insufficient token balance for burn operation"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount: must be greater than zero"
+    },
+    {
+      "code": 6017,
+      "name": "NoTokenHolders",
+      "msg": "No token holders: cannot distribute revenue"
+    },
+    {
+      "code": 6018,
+      "name": "MathOverflow",
+      "msg": "Math overflow in calculation"
+    },
+    {
+      "code": 6019,
+      "name": "ClaimTooSmall",
+      "msg": "Claim amount too small"
+    },
+    {
+      "code": 6020,
+      "name": "InsufficientVaultBalance",
+      "msg": "Insufficient vault balance"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidEpoch",
+      "msg": "Invalid epoch for this property"
+    },
+    {
+      "code": 6022,
+      "name": "EpochNotFinalized",
+      "msg": "Epoch not finalized: cannot claim yet"
+    },
+    {
+      "code": 6023,
+      "name": "CredentialExpired",
+      "msg": "Hub Credential expired: please renew your credential"
+    },
+    {
+      "code": 6024,
+      "name": "CredentialRevoked",
+      "msg": "Hub Credential revoked: verification required"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidCredential",
+      "msg": "Invalid Hub Credential: credential not valid"
+    },
+    {
+      "code": 6026,
+      "name": "CredentialSuspended",
+      "msg": "Credential suspended: contact support"
+    }
+  ],
+  "types": [
+    {
+      "name": "ClaimRecord",
+      "docs": [
+        "Tracks individual investor claims for an epoch"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "epoch",
+            "docs": [
+              "The epoch this claim is for"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "investor",
+            "docs": [
+              "The investor who claimed"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "amount_claimed",
+            "docs": [
+              "Amount claimed (in lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "claimed_at",
+            "docs": [
+              "Timestamp of claim"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExtraAccountMetasInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "extra_account_meta_list",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HubCredentialVerified",
+      "docs": [
+        "Event emitted when Hub Credential verification succeeds"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "credential",
+            "type": "pubkey"
+          },
+          {
+            "name": "credential_type",
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PropertyDetails",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "property_address",
+            "docs": [
+              "Physical address of the property",
+              "Example: \"Av. Paulista, 1000, São Paulo - SP, Brazil\""
+            ],
+            "type": "string"
+          },
+          {
+            "name": "property_type",
+            "docs": [
+              "Type of property",
+              "Example: \"Residential\", \"Commercial\", \"Industrial\", \"Mixed-Use\""
+            ],
+            "type": "string"
+          },
+          {
+            "name": "total_value_usd",
+            "docs": [
+              "Total property value in USD cents",
+              "Example: 100_000_000 = $1,000,000 USD"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "rental_yield_bps",
+            "docs": [
+              "Annual rental yield in basis points",
+              "Example: 500 = 5.00% annual yield",
+              "Range: 0-10000 (0%-100%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "metadata_uri",
+            "docs": [
+              "URI pointing to off-chain metadata (IPFS/Arweave)",
+              "Contains: legal documents, property photos, detailed specs",
+              "Example: \"ipfs://Qm...\""
+            ],
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PropertyInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "property_name",
+            "type": "string"
+          },
+          {
+            "name": "property_symbol",
+            "type": "string"
+          },
+          {
+            "name": "total_supply",
+            "type": "u64"
+          },
+          {
+            "name": "property_address",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PropertyState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Authority who can mint tokens and update property details"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "docs": [
+              "Token-2022 mint address for this property"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "property_name",
+            "docs": [
+              "Human-readable property name",
+              "Example: \"Edif\\u00edcio Santos Dumont\""
+            ],
+            "type": "string"
+          },
+          {
+            "name": "property_symbol",
+            "docs": [
+              "Token symbol/ticker",
+              "Example: \"EDSANTO\""
+            ],
+            "type": "string"
+          },
+          {
+            "name": "total_supply",
+            "docs": [
+              "Maximum number of tokens that can be minted"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "circulating_supply",
+            "docs": [
+              "Current number of tokens in circulation"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "details",
+            "docs": [
+              "Detailed property information"
+            ],
+            "type": {
+              "defined": {
+                "name": "PropertyDetails"
+              }
+            }
+          },
+          {
+            "name": "is_active",
+            "docs": [
+              "Whether minting is currently enabled"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "created_at",
+            "docs": [
+              "Timestamp when property was tokenized"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "updated_at",
+            "docs": [
+              "Timestamp of last update"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PropertyStatusChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PropertyUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "property_address",
+            "type": "string"
+          },
+          {
+            "name": "total_value_usd",
+            "type": "u64"
+          },
+          {
+            "name": "rental_yield_bps",
+            "type": "u16"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RevenueClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "property",
+            "type": "pubkey"
+          },
+          {
+            "name": "epoch",
+            "type": "pubkey"
+          },
+          {
+            "name": "epoch_number",
+            "type": "u64"
+          },
+          {
+            "name": "investor",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "investor_balance",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RevenueDeposited",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "property",
+            "type": "pubkey"
+          },
+          {
+            "name": "epoch",
+            "type": "pubkey"
+          },
+          {
+            "name": "epoch_number",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "eligible_supply",
+            "type": "u64"
+          },
+          {
+            "name": "deposited_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RevenueEpoch",
+      "docs": [
+        "Revenue distribution epoch - tracks a single distribution period"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "property_state",
+            "docs": [
+              "The property this epoch belongs to"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "epoch_number",
+            "docs": [
+              "Epoch number (incrementing)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_revenue",
+            "docs": [
+              "Total revenue deposited for this epoch (in lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "eligible_supply",
+            "docs": [
+              "Total tokens eligible at time of deposit (snapshot)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "deposited_at",
+            "docs": [
+              "Timestamp when revenue was deposited"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "deposited_by",
+            "docs": [
+              "Authority who deposited"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "is_finalized",
+            "docs": [
+              "Whether this epoch is finalized (no more deposits)"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokensBurned",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "investor",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "circulating_supply",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokensMinted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "investor",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "circulating_supply",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TransferKycVerified",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "source",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination_owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}
