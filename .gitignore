@@ -1,2 +1,88 @@
-.claude
+# ===========================
+# Hub Token Monorepo .gitignore
+# ===========================
 
+# Dependencies
+node_modules/
+
+# Build artifacts
+target/
+dist/
+dist-ssr/
+.anchor/
+test-ledger/
+**/*.rs.bk
+
+# Go binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/bin/
+vendor/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files (keep examples)
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+
+# Yarn
+.yarn/
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
+
+# Keep important JSON files
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.*.json
+!tsup.config.ts
+!vite.config.ts
+!tailwind.config.js
+!postcss.config.js
+!eslint.config.js
+!Anchor.toml
+!Cargo.toml
+!Cargo.lock
+!go.mod
+!go.sum
+
+# Keep IDL and types
+!**/target/idl/*.json
+!**/target/types/*.ts

@@ -1,0 +1,101 @@
+# Production Docker Compose
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hub-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=hub_indexer
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - hub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Indexer Service (Go)
+  indexer:
+    build:
+      context: ./services/indexer
+      dockerfile: Dockerfile
+    container_name: hub-indexer
+    ports:
+      - "9090:9090"
+    env_file:
+      - ./services/indexer/.env
+    environment:
+      - DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/hub_indexer?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    networks:
+      - hub-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Hub Token API (Node.js)
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: hub-api
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./services/api/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+    volumes:
+      - ./hub_token_program/target/idl:/app/idl:ro
+    restart: always
+    networks:
+      - hub-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # KYC API (Node.js)
+  kyc-api:
+    build:
+      context: ./services/kyc-api
+      dockerfile: Dockerfile
+    container_name: hub-kyc-api
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./services/kyc-api/.env
+    environment:
+      - NODE_ENV=production
+    restart: always
+    networks:
+      - hub-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  hub-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
