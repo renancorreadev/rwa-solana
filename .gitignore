@@ -1,0 +1,11 @@
+./real_estate_program/.claude
+./real_estate_program/app/node_modules
+./real_estate_program/target
+./real_estate_program/node_modules
+./real_estate_program/.anchor/*
+./real_estate_program/dist
+./real_estate_program/build
+./real_estate_program/test-ledger
+./real_estate_program/coverage
+./real_estate_program/.nyc_output
+.claude
