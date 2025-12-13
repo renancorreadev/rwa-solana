@@ -1,0 +1,116 @@
+# Hub Token - Docker Compose for Production
+# All images from Docker Hub: skynance/*
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hub-network
+
+  # Blockchain Indexer (Go)
+  indexer:
+    image: skynance/hub-indexer:latest
+    container_name: hub-indexer
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL}
+      - SOLANA_PROGRAM_ID=${PROGRAM_ID}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+      - PORT=9090
+      - HOST=0.0.0.0
+      - INDEXER_INTERVAL=60s
+      - INDEXER_ENABLED=true
+    ports:
+      - "9090:9090"
+    networks:
+      - hub-network
+
+  # Hub Token API (Node.js)
+  api:
+    image: skynance/hub-api:latest
+    container_name: hub-api
+    restart: unless-stopped
+    depends_on:
+      - indexer
+    environment:
+      - NODE_ENV=production
+      - PORT=${API_PORT}
+      - HOST=0.0.0.0
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL}
+      - SOLANA_WS_URL=${SOLANA_WS_URL}
+      - SOLANA_NETWORK=${SOLANA_NETWORK}
+      - PROGRAM_ID=${PROGRAM_ID}
+      - SOLANA_COMMITMENT=confirmed
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - INDEXER_URL=http://indexer:9090
+      - HUB_CREDENTIAL_API_URL=http://kyc-api:3001
+      - HUB_CREDENTIAL_PROGRAM_ID=${CREDENTIAL_PROGRAM_ID}
+      - PINATA_JWT=${PINATA_JWT}
+      - PINATA_API_KEY=${PINATA_API_KEY}
+      - PINATA_SECRET_KEY=${PINATA_SECRET_KEY}
+      - PINATA_GATEWAY=https://gateway.pinata.cloud/ipfs
+      - ADMIN_WALLET=${ADMIN_WALLET}
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    networks:
+      - hub-network
+
+  # KYC API (Node.js)
+  kyc-api:
+    image: skynance/hub-kyc-api:latest
+    container_name: hub-kyc-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL}
+      - SOLANA_NETWORK=${SOLANA_NETWORK}
+      - CREDENTIAL_PROGRAM_ID=${CREDENTIAL_PROGRAM_ID}
+      - HUB_TOKEN_PROGRAM_ID=${HUB_TOKEN_PROGRAM_ID}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=24h
+      - ALLOWED_ORIGINS=${CORS_ORIGINS}
+      - ADMIN_WALLET=${ADMIN_WALLET}
+      - ISSUER_PRIVATE_KEY=${ISSUER_PRIVATE_KEY}
+    ports:
+      - "3001:3001"
+    networks:
+      - hub-network
+
+  # Frontend (React/Vite)
+  frontend:
+    image: skynance/hub-frontend:latest
+    container_name: hub-frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${FRONTEND_PORT}:5173"
+    networks:
+      - hub-network
+
+volumes:
+  postgres_data:
+
+networks:
+  hub-network:
+    driver: bridge

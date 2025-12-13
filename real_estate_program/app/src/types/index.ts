@@ -125,6 +125,8 @@ export interface ClaimableEpoch {
   propertyMint: string;
   propertyName: string;
   claimableAmount: string;
+  totalRevenue: string;
+  depositedAt: string;
   claimed: boolean;
   claimedAt: string | null;
 }

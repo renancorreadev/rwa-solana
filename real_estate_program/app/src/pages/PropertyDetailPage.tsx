@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Copy,
   Wallet,
-  FileText,
   Calendar,
   Ruler,
   Home,
@@ -58,7 +57,6 @@ export const PropertyDetailPage: FC = () => {
   const { connected } = useWallet();
   const queryClient = useQueryClient();
   const [metadata, setMetadata] = useState<PropertyMetadata | null>(null);
-  const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
   const [isInvestModalOpen, setIsInvestModalOpen] = useState(false);
 
   const { data: property, isLoading, error } = useQuery({
@@ -72,7 +70,6 @@ export const PropertyDetailPage: FC = () => {
     const fetchMetadata = async () => {
       if (!property?.details?.metadataUri) return;
 
-      setIsLoadingMetadata(true);
       try {
         // Extract IPFS hash from URI
         const ipfsHash = property.details.metadataUri.replace('ipfs://', '');
@@ -84,8 +81,6 @@ export const PropertyDetailPage: FC = () => {
         }
       } catch (error) {
         console.error('Error fetching metadata:', error);
-      } finally {
-        setIsLoadingMetadata(false);
       }
     };
 
@@ -288,8 +283,7 @@ export const PropertyDetailPage: FC = () => {
           <Card className="lg:col-span-2 p-6">
             <CardHeader
               title="About This Property"
-              subtitle={property.details.propertyAddress}
-              icon={<FileText className="w-5 h-5 text-solana-purple-400" />}
+              subtitle={property.details.location}
             />
             <p className="text-solana-dark-300 leading-relaxed whitespace-pre-wrap">
               {metadata.description || 'No description available.'}

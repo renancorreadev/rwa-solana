@@ -1,3 +1,6 @@
+// IMPORTANT: Polyfills must be imported FIRST before any other imports
+import './polyfills';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -6,10 +9,6 @@ import { Toaster } from 'react-hot-toast';
 import App from './App';
 import { WalletContextProvider } from './providers/WalletProvider';
 import './styles/index.css';
-
-// Polyfill for Solana
-import { Buffer } from 'buffer';
-window.Buffer = Buffer;
 
 const queryClient = new QueryClient({
   defaultOptions: {

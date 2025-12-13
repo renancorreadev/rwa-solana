@@ -1,12 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram, TransactionInstruction, Transaction } from '@solana/web3.js';
 import { getAssociatedTokenAddressSync, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token';
-import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
+import { BN } from '@coral-xyz/anchor';
 import toast from 'react-hot-toast';
-import idl from '../../../target/idl/hub_token_program.json';
 
 const PROGRAM_ID = new PublicKey('FDfkSAAqk8uweJusJb8MSNRHXGRvFqokNfjw9m8ve6om');
+
+// Discriminator for claim_revenue instruction (first 8 bytes of sha256("global:claim_revenue"))
+const CLAIM_REVENUE_DISCRIMINATOR = Buffer.from([149, 95, 181, 242, 94, 90, 158, 162]);
 
 export function useClaimRevenue() {
   const { connection } = useConnection();
@@ -26,16 +28,6 @@ export function useClaimRevenue() {
       }
 
       const propertyMintPubkey = new PublicKey(propertyMint);
-
-      // Create provider
-      const provider = new AnchorProvider(
-        connection,
-        wallet as any,
-        AnchorProvider.defaultOptions()
-      );
-
-      // Create program
-      const program = new Program(idl as any, PROGRAM_ID, provider);
 
       // Derive PDAs
       const [propertyState] = PublicKey.findProgramAddressSync(
@@ -77,39 +69,51 @@ export function useClaimRevenue() {
       console.log('Claim Record:', claimRecord.toString());
       console.log('Revenue Vault:', revenueVault.toString());
 
-      // Call claim_revenue instruction
-      const tx = await program.methods
-        .claimRevenue()
-        .accounts({
-          investor: wallet.publicKey,
-          propertyState,
-          mint: propertyMintPubkey,
-          investorTokenAccount,
-          revenueEpoch,
-          claimRecord,
-          revenueVault,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc();
+      // Build instruction manually
+      const instruction = new TransactionInstruction({
+        programId: PROGRAM_ID,
+        keys: [
+          { pubkey: wallet.publicKey, isSigner: true, isWritable: true },
+          { pubkey: propertyState, isSigner: false, isWritable: false },
+          { pubkey: propertyMintPubkey, isSigner: false, isWritable: false },
+          { pubkey: investorTokenAccount, isSigner: false, isWritable: false },
+          { pubkey: revenueEpoch, isSigner: false, isWritable: true },
+          { pubkey: claimRecord, isSigner: false, isWritable: true },
+          { pubkey: revenueVault, isSigner: false, isWritable: true },
+          { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        ],
+        data: CLAIM_REVENUE_DISCRIMINATOR,
+      });
 
-      console.log('Claim successful! Transaction:', tx);
+      // Create and send transaction
+      const transaction = new Transaction().add(instruction);
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = wallet.publicKey;
 
-      return { signature: tx };
+      const signedTx = await wallet.signTransaction(transaction);
+      const txSignature = await connection.sendRawTransaction(signedTx.serialize());
+
+      await connection.confirmTransaction({
+        signature: txSignature,
+        blockhash,
+        lastValidBlockHeight,
+      });
+
+      console.log('Claim successful! Transaction:', txSignature);
+
+      return { signature: txSignature };
     },
     onSuccess: (data) => {
-      toast.success('Revenue claimed successfully!', {
-        description: `Transaction: ${data.signature.slice(0, 8)}...`,
-      });
+      toast.success(`Revenue claimed! Tx: ${data.signature.slice(0, 8)}...`);
 
       // Invalidate queries to refetch updated data
       queryClient.invalidateQueries({ queryKey: ['claimable-revenue'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Claim failed:', error);
-      toast.error('Failed to claim revenue', {
-        description: error.message || 'An unexpected error occurred',
-      });
+      toast.error(error.message || 'Failed to claim revenue');
     },
   });
 }
