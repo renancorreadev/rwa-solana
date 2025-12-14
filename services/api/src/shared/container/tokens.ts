@@ -8,11 +8,14 @@ export const TOKENS = {
   SolanaProgram: Symbol.for('SolanaProgram'),
   Logger: Symbol.for('Logger'),
   Config: Symbol.for('Config'),
+  Database: Symbol.for('Database'),
 
   // Repositories
   PropertyRepository: Symbol.for('PropertyRepository'),
   InvestorRepository: Symbol.for('InvestorRepository'),
   RevenueRepository: Symbol.for('RevenueRepository'),
+  UserPreferencesRepository: Symbol.for('UserPreferencesRepository'),
+  UserAnalyticsRepository: Symbol.for('UserAnalyticsRepository'),
 
   // Services
   KycService: Symbol.for('KycService'),

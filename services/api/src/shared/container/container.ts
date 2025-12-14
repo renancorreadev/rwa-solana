@@ -8,6 +8,7 @@ import { SolanaProgramAdapter } from '../../infrastructure/solana/SolanaProgramA
 import { AdminService } from '../../infrastructure/solana/AdminService';
 import { HubCredentialServiceAdapter } from '../../infrastructure/kyc/HubCredentialServiceAdapter';
 import { IpfsService } from '../../infrastructure/ipfs/IpfsService';
+import { PostgresDatabase } from '../../infrastructure/database/PostgresDatabase';
 import { Logger } from '../utils/Logger';
 import { Config } from '../../infrastructure/config/Config';
 
@@ -15,6 +16,8 @@ import { Config } from '../../infrastructure/config/Config';
 import { PropertyRepositoryImpl } from '../../infrastructure/repositories/PropertyRepositoryImpl';
 import { InvestorRepositoryImpl } from '../../infrastructure/repositories/InvestorRepositoryImpl';
 import { RevenueRepositoryImpl } from '../../infrastructure/repositories/RevenueRepositoryImpl';
+import { UserPreferencesRepositoryImpl } from '../../infrastructure/repositories/UserPreferencesRepositoryImpl';
+import { UserAnalyticsRepositoryImpl } from '../../infrastructure/repositories/UserAnalyticsRepositoryImpl';
 
 // Use Cases
 import { GetPropertiesUseCase } from '../../application/use-cases/GetPropertiesUseCase';
@@ -35,6 +38,9 @@ export function configureContainer(): DependencyContainer {
   // Register Logger
   container.registerSingleton(TOKENS.Logger, Logger);
 
+  // Register Database
+  container.registerSingleton(TOKENS.Database, PostgresDatabase);
+
   // Register Infrastructure
   container.registerSingleton(TOKENS.SolanaConnection, SolanaConnectionAdapter);
   container.registerSingleton(TOKENS.SolanaProgram, SolanaProgramAdapter);
@@ -46,6 +52,8 @@ export function configureContainer(): DependencyContainer {
   container.registerSingleton(TOKENS.PropertyRepository, PropertyRepositoryImpl);
   container.registerSingleton(TOKENS.InvestorRepository, InvestorRepositoryImpl);
   container.registerSingleton(TOKENS.RevenueRepository, RevenueRepositoryImpl);
+  container.registerSingleton(TOKENS.UserPreferencesRepository, UserPreferencesRepositoryImpl);
+  container.registerSingleton(TOKENS.UserAnalyticsRepository, UserAnalyticsRepositoryImpl);
 
   // Use cases are auto-registered via @injectable() decorator
 

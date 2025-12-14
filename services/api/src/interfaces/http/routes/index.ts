@@ -6,6 +6,7 @@ import { createRevenueRoutes } from './revenueRoutes';
 import { createIpfsRoutes } from './ipfsRoutes';
 import { createAdminRoutes } from './adminRoutes';
 import { createInvestRoutes } from './investRoutes';
+import { createUserRoutes } from './userRoutes';
 
 export function createApiRoutes(): Router {
   const router = Router();
@@ -17,6 +18,7 @@ export function createApiRoutes(): Router {
   router.use('/ipfs', createIpfsRoutes());
   router.use('/admin', createAdminRoutes());
   router.use('/invest', createInvestRoutes());
+  router.use('/users', createUserRoutes());
 
   // Health check
   router.get('/health', (req, res) => {

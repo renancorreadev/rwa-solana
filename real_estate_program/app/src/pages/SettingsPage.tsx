@@ -1,6 +1,6 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Settings,
   User,
@@ -13,52 +13,71 @@ import {
   Copy,
   ExternalLink,
   Check,
-  Mail,
-  Smartphone,
   Eye,
   EyeOff,
   Download,
   Trash2,
+  Loader2,
+  DollarSign,
+  TrendingUp,
+  AlertCircle,
+  Building,
 } from 'lucide-react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { investorApi } from '@/services/api';
+import * as userApi from '@/services/api/user';
 import toast from 'react-hot-toast';
 
 type ThemeMode = 'dark' | 'light' | 'system';
-type NotificationSetting = 'all' | 'important' | 'none';
-
-interface UserPreferences {
-  theme: ThemeMode;
-  notifications: NotificationSetting;
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  hideBalances: boolean;
-  currency: string;
-  language: string;
-}
-
-const defaultPreferences: UserPreferences = {
-  theme: 'dark',
-  notifications: 'all',
-  emailNotifications: true,
-  pushNotifications: false,
-  hideBalances: false,
-  currency: 'USD',
-  language: 'en',
-};
+type CurrencyType = 'USD' | 'BRL' | 'EUR';
 
 export const SettingsPage: FC = () => {
   const { publicKey, connected, disconnect } = useWallet();
+  const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
-  const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Fetch user preferences from API
+  const { data: preferences, isLoading: preferencesLoading, error: preferencesError } = useQuery({
+    queryKey: ['userPreferences', publicKey?.toString()],
+    queryFn: () => userApi.getUserPreferences(publicKey!.toString()),
+    enabled: !!publicKey,
+    retry: 1,
+  });
+
+  // Fetch portfolio data
   const { data: portfolio } = useQuery({
     queryKey: ['portfolio', publicKey?.toString()],
     queryFn: () => investorApi.getPortfolio(publicKey!.toString()),
     enabled: !!publicKey,
+  });
+
+  // Update preferences mutation
+  const updatePreferencesMutation = useMutation({
+    mutationFn: (data: userApi.UpdatePreferencesInput) =>
+      userApi.updateUserPreferences(publicKey!.toString(), data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userPreferences', publicKey?.toString()] });
+      toast.success('Preferences updated');
+    },
+    onError: (error) => {
+      toast.error(`Failed to update: ${error.message}`);
+    },
+  });
+
+  // Delete preferences mutation
+  const deletePreferencesMutation = useMutation({
+    mutationFn: () => userApi.deleteUserPreferences(publicKey!.toString()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userPreferences', publicKey?.toString()] });
+      setShowDeleteConfirm(false);
+      toast.success('Account data deleted');
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete: ${error.message}`);
+    },
   });
 
   const copyAddress = () => {
@@ -70,29 +89,41 @@ export const SettingsPage: FC = () => {
     }
   };
 
-  const handlePreferenceChange = <K extends keyof UserPreferences>(
-    key: K,
-    value: UserPreferences[K]
-  ) => {
-    setPreferences((prev) => ({ ...prev, [key]: value }));
-    toast.success('Preference updated');
+  const handleThemeChange = (theme: ThemeMode) => {
+    updatePreferencesMutation.mutate({ theme });
   };
 
-  const exportData = () => {
-    const data = {
-      wallet: publicKey?.toString(),
-      portfolio: portfolio,
-      preferences: preferences,
-      exportedAt: new Date().toISOString(),
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `hub-token-export-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success('Data exported successfully');
+  const handleCurrencyChange = (currency: CurrencyType) => {
+    updatePreferencesMutation.mutate({ currency });
+  };
+
+  const handleHideBalancesToggle = () => {
+    updatePreferencesMutation.mutate({ hideBalances: !preferences?.hideBalances });
+  };
+
+  const handleNotificationToggle = (key: keyof userApi.NotificationPreferences) => {
+    if (!preferences) return;
+    updatePreferencesMutation.mutate({
+      notifications: {
+        [key]: !preferences.notifications[key],
+      },
+    });
+  };
+
+  const exportData = async () => {
+    if (!publicKey) return;
+    try {
+      const blob = await userApi.exportUserData(publicKey.toString(), 'json');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `hub-token-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Data exported successfully');
+    } catch (error) {
+      toast.error('Failed to export data');
+    }
   };
 
   if (!connected) {
@@ -102,6 +133,14 @@ export const SettingsPage: FC = () => {
         title="Connect Your Wallet"
         description="Connect your Solana wallet to access settings and preferences."
       />
+    );
+  }
+
+  if (preferencesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-solana-purple-400" />
+      </div>
     );
   }
 
@@ -115,6 +154,17 @@ export const SettingsPage: FC = () => {
         </h1>
         <p className="text-solana-dark-400 mt-1">Manage your account and preferences</p>
       </div>
+
+      {/* API Error Warning */}
+      {preferencesError && (
+        <div className="flex items-center gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-yellow-400" />
+          <div>
+            <p className="font-medium text-white">Could not load preferences</p>
+            <p className="text-sm text-solana-dark-400">Using default settings. Changes may not be saved.</p>
+          </div>
+        </div>
+      )}
 
       {/* Profile Section */}
       <Card>
@@ -178,6 +228,29 @@ export const SettingsPage: FC = () => {
               </Button>
             )}
           </div>
+
+          {/* Portfolio Summary */}
+          {portfolio && (
+            <div className="grid grid-cols-3 gap-4">
+              <div className="p-4 bg-solana-dark-800/50 rounded-xl text-center">
+                <Building className="w-5 h-5 text-solana-purple-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">{portfolio.totalProperties}</p>
+                <p className="text-xs text-solana-dark-400">Properties</p>
+              </div>
+              <div className="p-4 bg-solana-dark-800/50 rounded-xl text-center">
+                <DollarSign className="w-5 h-5 text-solana-green-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">
+                  ${preferences?.hideBalances ? '••••' : portfolio.totalValueUsd.toLocaleString()}
+                </p>
+                <p className="text-xs text-solana-dark-400">Total Value</p>
+              </div>
+              <div className="p-4 bg-solana-dark-800/50 rounded-xl text-center">
+                <TrendingUp className="w-5 h-5 text-blue-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">{portfolio.holdings?.length || 0}</p>
+                <p className="text-xs text-solana-dark-400">Holdings</p>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -189,10 +262,12 @@ export const SettingsPage: FC = () => {
           {/* Theme Selection */}
           <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
             <div className="flex items-center gap-3">
-              {preferences.theme === 'dark' ? (
+              {preferences?.theme === 'dark' ? (
                 <Moon className="w-5 h-5 text-solana-purple-400" />
-              ) : (
+              ) : preferences?.theme === 'light' ? (
                 <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Settings className="w-5 h-5 text-solana-dark-400" />
               )}
               <div>
                 <p className="font-medium text-white">Theme</p>
@@ -203,9 +278,10 @@ export const SettingsPage: FC = () => {
               {(['dark', 'light', 'system'] as ThemeMode[]).map((theme) => (
                 <button
                   key={theme}
-                  onClick={() => handlePreferenceChange('theme', theme)}
+                  onClick={() => handleThemeChange(theme)}
+                  disabled={updatePreferencesMutation.isPending}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    preferences.theme === theme
+                    preferences?.theme === theme
                       ? 'bg-solana-purple-500 text-white'
                       : 'bg-solana-dark-700 text-solana-dark-300 hover:bg-solana-dark-600'
                   }`}
@@ -219,7 +295,7 @@ export const SettingsPage: FC = () => {
           {/* Hide Balances */}
           <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
             <div className="flex items-center gap-3">
-              {preferences.hideBalances ? (
+              {preferences?.hideBalances ? (
                 <EyeOff className="w-5 h-5 text-solana-dark-400" />
               ) : (
                 <Eye className="w-5 h-5 text-solana-green-400" />
@@ -230,14 +306,15 @@ export const SettingsPage: FC = () => {
               </div>
             </div>
             <button
-              onClick={() => handlePreferenceChange('hideBalances', !preferences.hideBalances)}
+              onClick={handleHideBalancesToggle}
+              disabled={updatePreferencesMutation.isPending}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                preferences.hideBalances ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
+                preferences?.hideBalances ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
               }`}
             >
               <span
                 className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                  preferences.hideBalances ? 'translate-x-7' : 'translate-x-1'
+                  preferences?.hideBalances ? 'translate-x-7' : 'translate-x-1'
                 }`}
               />
             </button>
@@ -253,14 +330,14 @@ export const SettingsPage: FC = () => {
               </div>
             </div>
             <select
-              value={preferences.currency}
-              onChange={(e) => handlePreferenceChange('currency', e.target.value)}
+              value={preferences?.currency || 'USD'}
+              onChange={(e) => handleCurrencyChange(e.target.value as CurrencyType)}
+              disabled={updatePreferencesMutation.isPending}
               className="bg-solana-dark-700 text-white px-4 py-2 rounded-lg border border-solana-dark-600 focus:outline-none focus:border-solana-purple-500"
             >
               <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
+              <option value="EUR">EUR (&#8364;)</option>
               <option value="BRL">BRL (R$)</option>
-              <option value="GBP">GBP (£)</option>
             </select>
           </div>
         </div>
@@ -271,67 +348,121 @@ export const SettingsPage: FC = () => {
         <CardHeader title="Notifications" subtitle="Manage how you receive updates" />
 
         <div className="space-y-4">
-          {/* Notification Level */}
+          {/* Revenue Alerts */}
           <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
             <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-solana-purple-400" />
+              <DollarSign className="w-5 h-5 text-solana-green-400" />
               <div>
-                <p className="font-medium text-white">Notification Level</p>
-                <p className="text-sm text-solana-dark-400">Choose which notifications to receive</p>
-              </div>
-            </div>
-            <select
-              value={preferences.notifications}
-              onChange={(e) => handlePreferenceChange('notifications', e.target.value as NotificationSetting)}
-              className="bg-solana-dark-700 text-white px-4 py-2 rounded-lg border border-solana-dark-600 focus:outline-none focus:border-solana-purple-500"
-            >
-              <option value="all">All notifications</option>
-              <option value="important">Important only</option>
-              <option value="none">None</option>
-            </select>
-          </div>
-
-          {/* Email Notifications */}
-          <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
-            <div className="flex items-center gap-3">
-              <Mail className="w-5 h-5 text-solana-dark-400" />
-              <div>
-                <p className="font-medium text-white">Email Notifications</p>
-                <p className="text-sm text-solana-dark-400">Receive updates via email</p>
+                <p className="font-medium text-white">Revenue Alerts</p>
+                <p className="text-sm text-solana-dark-400">Get notified when revenue is available</p>
               </div>
             </div>
             <button
-              onClick={() => handlePreferenceChange('emailNotifications', !preferences.emailNotifications)}
+              onClick={() => handleNotificationToggle('revenueAlerts')}
+              disabled={updatePreferencesMutation.isPending}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                preferences.emailNotifications ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
+                preferences?.notifications?.revenueAlerts ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
               }`}
             >
               <span
                 className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                  preferences.emailNotifications ? 'translate-x-7' : 'translate-x-1'
+                  preferences?.notifications?.revenueAlerts ? 'translate-x-7' : 'translate-x-1'
                 }`}
               />
             </button>
           </div>
 
-          {/* Push Notifications */}
+          {/* Price Alerts */}
           <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
             <div className="flex items-center gap-3">
-              <Smartphone className="w-5 h-5 text-solana-dark-400" />
+              <TrendingUp className="w-5 h-5 text-blue-400" />
               <div>
-                <p className="font-medium text-white">Push Notifications</p>
-                <p className="text-sm text-solana-dark-400">Receive push notifications on your device</p>
+                <p className="font-medium text-white">Price Alerts</p>
+                <p className="text-sm text-solana-dark-400">Get notified of significant price changes</p>
               </div>
             </div>
             <button
-              onClick={() => handlePreferenceChange('pushNotifications', !preferences.pushNotifications)}
+              onClick={() => handleNotificationToggle('priceAlerts')}
+              disabled={updatePreferencesMutation.isPending}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                preferences.pushNotifications ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
+                preferences?.notifications?.priceAlerts ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
               }`}
             >
               <span
                 className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                  preferences.pushNotifications ? 'translate-x-7' : 'translate-x-1'
+                  preferences?.notifications?.priceAlerts ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* New Properties */}
+          <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
+            <div className="flex items-center gap-3">
+              <Building className="w-5 h-5 text-solana-purple-400" />
+              <div>
+                <p className="font-medium text-white">New Properties</p>
+                <p className="text-sm text-solana-dark-400">Get notified when new properties are listed</p>
+              </div>
+            </div>
+            <button
+              onClick={() => handleNotificationToggle('newProperties')}
+              disabled={updatePreferencesMutation.isPending}
+              className={`relative w-12 h-6 rounded-full transition-colors ${
+                preferences?.notifications?.newProperties ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  preferences?.notifications?.newProperties ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* KYC Reminders */}
+          <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
+            <div className="flex items-center gap-3">
+              <Shield className="w-5 h-5 text-yellow-400" />
+              <div>
+                <p className="font-medium text-white">KYC Reminders</p>
+                <p className="text-sm text-solana-dark-400">Reminders about KYC verification status</p>
+              </div>
+            </div>
+            <button
+              onClick={() => handleNotificationToggle('kycReminders')}
+              disabled={updatePreferencesMutation.isPending}
+              className={`relative w-12 h-6 rounded-full transition-colors ${
+                preferences?.notifications?.kycReminders ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  preferences?.notifications?.kycReminders ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Marketing Emails */}
+          <div className="flex items-center justify-between p-4 bg-solana-dark-800/50 rounded-xl">
+            <div className="flex items-center gap-3">
+              <Bell className="w-5 h-5 text-solana-dark-400" />
+              <div>
+                <p className="font-medium text-white">Marketing Communications</p>
+                <p className="text-sm text-solana-dark-400">Receive updates about new features and offers</p>
+              </div>
+            </div>
+            <button
+              onClick={() => handleNotificationToggle('marketingEmails')}
+              disabled={updatePreferencesMutation.isPending}
+              className={`relative w-12 h-6 rounded-full transition-colors ${
+                preferences?.notifications?.marketingEmails ? 'bg-solana-purple-500' : 'bg-solana-dark-600'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  preferences?.notifications?.marketingEmails ? 'translate-x-7' : 'translate-x-1'
                 }`}
               />
             </button>
@@ -389,13 +520,14 @@ export const SettingsPage: FC = () => {
                   variant="secondary"
                   size="sm"
                   className="!bg-red-500 !text-white hover:!bg-red-600"
-                  onClick={() => {
-                    setPreferences(defaultPreferences);
-                    setShowDeleteConfirm(false);
-                    toast.success('Account data deleted');
-                  }}
+                  onClick={() => deletePreferencesMutation.mutate()}
+                  disabled={deletePreferencesMutation.isPending}
                 >
-                  Confirm
+                  {deletePreferencesMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    'Confirm'
+                  )}
                 </Button>
               </div>
             )}

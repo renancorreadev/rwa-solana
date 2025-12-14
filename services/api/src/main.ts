@@ -6,6 +6,7 @@ import { configureContainer, container } from './shared/container/container';
 import { createApiRoutes } from './interfaces/http/routes';
 import { errorHandler, requestLogger } from './interfaces/http/middlewares';
 import { Config } from './infrastructure/config/Config';
+import { PostgresDatabase } from './infrastructure/database/PostgresDatabase';
 import { TOKENS } from './shared/container/tokens';
 
 async function bootstrap(): Promise<void> {
@@ -13,6 +14,15 @@ async function bootstrap(): Promise<void> {
   configureContainer();
 
   const config = container.resolve<Config>(TOKENS.Config);
+
+  // Initialize database connection
+  try {
+    const database = container.resolve<PostgresDatabase>(TOKENS.Database);
+    await database.initialize();
+    console.log('  ✅ PostgreSQL database connected');
+  } catch (error) {
+    console.warn('  ⚠️  PostgreSQL not available, user preferences will not persist:', (error as Error).message);
+  }
   const app = express();
 
   // Security middleware
@@ -80,6 +90,12 @@ async function bootstrap(): Promise<void> {
     console.log('  ║   • POST /api/v1/admin/properties (create)       ║');
     console.log('  ║   • POST /api/v1/admin/mint (mint tokens)        ║');
     console.log('  ║   • POST /api/v1/admin/revenue (deposit)         ║');
+    console.log('  ║   User:                                          ║');
+    console.log('  ║   • GET  /api/v1/users/:wallet/preferences       ║');
+    console.log('  ║   • PUT  /api/v1/users/:wallet/preferences       ║');
+    console.log('  ║   • GET  /api/v1/users/:wallet/analytics         ║');
+    console.log('  ║   • GET  /api/v1/users/:wallet/activities        ║');
+    console.log('  ║   • GET  /api/v1/users/:wallet/export            ║');
     console.log('  ║                                                  ║');
     console.log('  ╚══════════════════════════════════════════════════╝');
     console.log('\n');

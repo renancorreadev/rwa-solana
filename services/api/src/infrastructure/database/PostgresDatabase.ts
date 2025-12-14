@@ -1,0 +1,124 @@
+import { Pool, QueryResult } from 'pg';
+import { injectable, inject } from 'tsyringe';
+import { TOKENS } from '../../shared/container/tokens';
+import { Logger } from '../../shared/utils/Logger';
+
+@injectable()
+export class PostgresDatabase {
+  private pool: Pool;
+  private initialized: boolean = false;
+
+  constructor(@inject(TOKENS.Logger) private logger: Logger) {
+    const connectionString = process.env.DATABASE_URL ||
+      'postgres://postgres:postgres@localhost:5432/hub_indexer';
+
+    this.pool = new Pool({
+      connectionString,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
+
+    this.pool.on('error', (err) => {
+      this.logger.error('Unexpected error on idle client', err);
+    });
+  }
+
+  async initialize(): Promise<void> {
+    if (this.initialized) return;
+
+    try {
+      // Test connection
+      const client = await this.pool.connect();
+      this.logger.info('PostgreSQL connected successfully');
+      client.release();
+
+      // Create tables if not exist
+      await this.createTables();
+      this.initialized = true;
+    } catch (error) {
+      this.logger.error('Failed to initialize PostgreSQL', error);
+      throw error;
+    }
+  }
+
+  private async createTables(): Promise<void> {
+    const createUserPreferencesTable = `
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        id SERIAL PRIMARY KEY,
+        wallet_address VARCHAR(44) UNIQUE NOT NULL,
+        theme VARCHAR(20) DEFAULT 'system',
+        currency VARCHAR(10) DEFAULT 'USD',
+        hide_balances BOOLEAN DEFAULT false,
+        notifications JSONB DEFAULT '{"revenueAlerts":true,"priceAlerts":true,"newProperties":true,"kycReminders":true,"marketingEmails":false}',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    const createUserActivitiesTable = `
+      CREATE TABLE IF NOT EXISTS user_activities (
+        id SERIAL PRIMARY KEY,
+        wallet_address VARCHAR(44) NOT NULL,
+        activity_type VARCHAR(50) NOT NULL,
+        property_mint VARCHAR(44),
+        property_name VARCHAR(255),
+        amount DECIMAL(20, 2),
+        description TEXT,
+        metadata JSONB,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_user_activities_wallet ON user_activities(wallet_address);
+      CREATE INDEX IF NOT EXISTS idx_user_activities_created ON user_activities(created_at DESC);
+    `;
+
+    const createPortfolioSnapshotsTable = `
+      CREATE TABLE IF NOT EXISTS portfolio_snapshots (
+        id SERIAL PRIMARY KEY,
+        wallet_address VARCHAR(44) NOT NULL,
+        total_value_usd DECIMAL(20, 2),
+        total_properties INTEGER,
+        holdings JSONB,
+        snapshot_date DATE NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(wallet_address, snapshot_date)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_portfolio_snapshots_wallet ON portfolio_snapshots(wallet_address);
+      CREATE INDEX IF NOT EXISTS idx_portfolio_snapshots_date ON portfolio_snapshots(snapshot_date DESC);
+    `;
+
+    try {
+      await this.query(createUserPreferencesTable);
+      await this.query(createUserActivitiesTable);
+      await this.query(createPortfolioSnapshotsTable);
+      this.logger.info('Database tables created/verified successfully');
+    } catch (error) {
+      this.logger.error('Failed to create tables', error);
+      throw error;
+    }
+  }
+
+  async query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
+    const start = Date.now();
+    try {
+      const result = await this.pool.query<T>(text, params);
+      const duration = Date.now() - start;
+      this.logger.debug(`Query executed in ${duration}ms`, { text: text.substring(0, 100), rows: result.rowCount });
+      return result;
+    } catch (error) {
+      this.logger.error('Query failed', { text: text.substring(0, 100), error });
+      throw error;
+    }
+  }
+
+  async close(): Promise<void> {
+    await this.pool.end();
+    this.logger.info('PostgreSQL connection closed');
+  }
+
+  isConnected(): boolean {
+    return this.initialized;
+  }
+}
