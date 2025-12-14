@@ -2,6 +2,7 @@ import { FC, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Wallet, Building2, ArrowRight, Shield, Send, Coins } from 'lucide-react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ import { investorApi } from '@/services/api';
 import { TokenHolding } from '@/types';
 
 export const PortfolioPage: FC = () => {
+  const { t } = useTranslation();
   const { publicKey, connected } = useWallet();
   const queryClient = useQueryClient();
 
@@ -49,8 +51,8 @@ export const PortfolioPage: FC = () => {
     return (
       <EmptyState
         icon={<Wallet className="w-10 h-10" />}
-        title="Connect Your Wallet"
-        description="Connect your Solana wallet to view your portfolio and investment holdings."
+        title={t('common.connectWallet')}
+        description={t('errors.walletNotConnected')}
       />
     );
   }
@@ -61,8 +63,8 @@ export const PortfolioPage: FC = () => {
     return (
       <EmptyState
         icon={<Wallet className="w-10 h-10" />}
-        title="Failed to load portfolio"
-        description="There was an error loading your portfolio. Please try again later."
+        title={t('errors.generic')}
+        description={t('errors.networkError')}
       />
     );
   }
@@ -71,8 +73,8 @@ export const PortfolioPage: FC = () => {
     <div className="space-y-6 animate-in">
       {/* Header */}
       <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-white">My Portfolio</h1>
-        <p className="text-solana-dark-400">Track your real estate investments</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-white">{t('portfolio.title')}</h1>
+        <p className="text-solana-dark-400">{t('portfolio.subtitle')}</p>
       </div>
 
       {/* KYC Status Banner */}
@@ -83,14 +85,14 @@ export const PortfolioPage: FC = () => {
               <Shield className="w-6 h-6 text-yellow-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-white">KYC Verification Required</h3>
+              <h3 className="font-semibold text-white">{t('kyc.verificationRequired')}</h3>
               <p className="text-sm text-solana-dark-300">
-                Complete KYC verification to transfer tokens and claim revenue.
+                {t('kyc.verificationDescription')}
               </p>
             </div>
             <Link to="/kyc">
               <Button variant="secondary" size="sm">
-                Verify Now
+                {t('kyc.startVerification')}
               </Button>
             </Link>
           </div>
@@ -100,19 +102,19 @@ export const PortfolioPage: FC = () => {
       {/* Stats */}
       <StatsGrid cols={3}>
         <StatCard
-          title="Total Value"
+          title={t('portfolio.totalValue')}
           value={`$${portfolio?.totalValueUsd.toLocaleString() || '0'}`}
           icon={<Wallet className="w-6 h-6 text-solana-purple-400" />}
           iconBg="bg-solana-purple-500/20"
         />
         <StatCard
-          title="Properties Owned"
+          title={t('dashboard.totalProperties')}
           value={portfolio?.totalProperties || 0}
           icon={<Building2 className="w-6 h-6 text-solana-green-400" />}
           iconBg="bg-solana-green-500/20"
         />
         <StatCard
-          title="KYC Status"
+          title={t('kyc.status')}
           value={portfolio?.kycStatus || 'Unknown'}
           icon={<Shield className="w-6 h-6 text-blue-400" />}
           iconBg="bg-blue-500/20"
@@ -123,8 +125,8 @@ export const PortfolioPage: FC = () => {
       {claimableRevenue && claimableRevenue.epochs.length > 0 && (
         <Card>
           <CardHeader
-            title="Claimable Revenue"
-            subtitle="Your share of rental income distributions"
+            title={t('portfolio.claimableRevenue')}
+            subtitle={t('revenue.subtitle')}
             action={
               <div className="flex items-center gap-2 text-sm text-solana-dark-400">
                 <Coins className="w-4 h-4" />
@@ -152,12 +154,12 @@ export const PortfolioPage: FC = () => {
       {/* Holdings */}
       <Card>
         <CardHeader
-          title="Holdings"
-          subtitle="Your property token holdings"
+          title={t('portfolio.holdings')}
+          subtitle={t('portfolio.subtitle')}
           action={
             <Link to="/properties">
               <Button variant="ghost" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                Browse Properties
+                {t('portfolio.browseProperties')}
               </Button>
             </Link>
           }
@@ -192,7 +194,7 @@ export const PortfolioPage: FC = () => {
                     disabled={!portfolio.kycVerified}
                     title={!portfolio.kycVerified ? 'Complete KYC to transfer' : 'Transfer tokens'}
                   >
-                    Transfer
+                    {t('portfolio.transfer')}
                   </Button>
                   <Link to={`/properties/${holding.propertyMint}`}>
                     <Button variant="ghost" size="sm">
@@ -206,10 +208,10 @@ export const PortfolioPage: FC = () => {
         ) : (
           <EmptyState
             icon={<Building2 className="w-8 h-8" />}
-            title="No holdings yet"
-            description="Start investing in tokenized real estate to build your portfolio."
+            title={t('portfolio.noHoldings')}
+            description={t('portfolio.noHoldingsDescription')}
             action={{
-              label: 'Browse Properties',
+              label: t('portfolio.browseProperties'),
               onClick: () => window.location.href = '/properties',
             }}
           />

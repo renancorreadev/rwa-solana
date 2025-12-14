@@ -10,9 +10,11 @@ import { PageLoading } from '@/components/ui/Loading';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { investorApi } from '@/services/api';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 export const RevenuePage: FC = () => {
   const { publicKey, connected } = useWallet();
+  const { t } = useTranslation();
 
   const { data: claimable, isLoading, error } = useQuery({
     queryKey: ['claimable', publicKey?.toString()],
@@ -24,8 +26,8 @@ export const RevenuePage: FC = () => {
     return (
       <EmptyState
         icon={<Wallet className="w-10 h-10" />}
-        title="Connect Your Wallet"
-        description="Connect your Solana wallet to view and claim your revenue."
+        title={t('common.connectWallet')}
+        description={t('errors.walletNotConnected')}
       />
     );
   }
@@ -36,8 +38,8 @@ export const RevenuePage: FC = () => {
     return (
       <EmptyState
         icon={<TrendingUp className="w-10 h-10" />}
-        title="Failed to load revenue"
-        description="There was an error loading your revenue. Please try again later."
+        title={t('errors.generic')}
+        description={t('errors.networkError')}
       />
     );
   }
@@ -51,12 +53,12 @@ export const RevenuePage: FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white">Revenue</h1>
-          <p className="text-solana-dark-400">Claim your rental income distributions</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white">{t('revenue.title')}</h1>
+          <p className="text-solana-dark-400">{t('revenue.subtitle')}</p>
         </div>
         {totalClaimable > 0 && (
           <Button size="lg" leftIcon={<DollarSign className="w-5 h-5" />}>
-            Claim All ({totalClaimable.toFixed(4)} SOL)
+            {t('portfolio.claimAll')} ({totalClaimable.toFixed(4)} SOL)
           </Button>
         )}
       </div>
@@ -64,19 +66,19 @@ export const RevenuePage: FC = () => {
       {/* Stats */}
       <StatsGrid cols={3}>
         <StatCard
-          title="Available to Claim"
+          title={t('revenue.availableToClaim')}
           value={`${totalClaimable.toFixed(4)} SOL`}
           icon={<DollarSign className="w-6 h-6 text-solana-green-400" />}
           iconBg="bg-solana-green-500/20"
         />
         <StatCard
-          title="Unclaimed Epochs"
+          title={t('revenue.epoch')}
           value={unclaimedEpochs.length}
           icon={<Clock className="w-6 h-6 text-yellow-400" />}
           iconBg="bg-yellow-500/20"
         />
         <StatCard
-          title="Total Claimed"
+          title={t('revenue.claimedAmount')}
           value={claimedEpochs.length}
           icon={<CheckCircle2 className="w-6 h-6 text-solana-purple-400" />}
           iconBg="bg-solana-purple-500/20"
@@ -86,7 +88,7 @@ export const RevenuePage: FC = () => {
       {/* Unclaimed Revenue */}
       {unclaimedEpochs.length > 0 && (
         <Card>
-          <CardHeader title="Available to Claim" subtitle="Revenue ready for withdrawal" />
+          <CardHeader title={t('revenue.availableToClaim')} subtitle={t('revenue.availableToClaim')} />
           <div className="space-y-3">
             {unclaimedEpochs.map((epoch) => (
               <div
@@ -107,7 +109,7 @@ export const RevenuePage: FC = () => {
                     {(Number(epoch.claimableAmount) / 1e9).toFixed(4)} SOL
                   </p>
                 </div>
-                <Button size="sm">Claim</Button>
+                <Button size="sm">{t('portfolio.claim')}</Button>
               </div>
             ))}
           </div>
@@ -116,7 +118,7 @@ export const RevenuePage: FC = () => {
 
       {/* Claimed History */}
       <Card>
-        <CardHeader title="Claim History" subtitle="Previously claimed revenue" />
+        <CardHeader title={t('dividends.paymentHistory')} subtitle={t('revenue.claimedSuccessfully')} />
         {claimedEpochs.length > 0 ? (
           <div className="space-y-3">
             {claimedEpochs.map((epoch) => (
@@ -130,17 +132,17 @@ export const RevenuePage: FC = () => {
                 <div className="flex-1">
                   <h4 className="font-semibold text-white">{epoch.propertyName}</h4>
                   <p className="text-sm text-solana-dark-400">
-                    Epoch #{epoch.epochNumber} - Claimed{' '}
+                    Epoch #{epoch.epochNumber} - {t('revenue.claimed')}{' '}
                     {epoch.claimedAt && formatDistanceToNow(new Date(epoch.claimedAt), { addSuffix: true })}
                   </p>
                 </div>
-                <Badge variant="success">Claimed</Badge>
+                <Badge variant="success">{t('revenue.claimed')}</Badge>
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-8 text-solana-dark-400">
-            No claimed revenue yet
+            {t('dividends.noPaymentsYet')}
           </div>
         )}
       </Card>

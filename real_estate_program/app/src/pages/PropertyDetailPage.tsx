@@ -2,6 +2,7 @@ import { FC, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useTranslation } from 'react-i18next';
 import {
   Building2,
   MapPin,
@@ -53,6 +54,7 @@ interface PropertyMetadata {
 }
 
 export const PropertyDetailPage: FC = () => {
+  const { t } = useTranslation();
   const { mint } = useParams<{ mint: string }>();
   const { connected } = useWallet();
   const queryClient = useQueryClient();
@@ -140,9 +142,9 @@ export const PropertyDetailPage: FC = () => {
     return (
       <EmptyState
         icon={<Building2 className="w-10 h-10" />}
-        title="Property not found"
-        description="The property you're looking for doesn't exist or has been removed."
-        action={{ label: 'Back to Properties', onClick: () => window.history.back() }}
+        title={t('errors.notFound')}
+        description={t('errors.notFound')}
+        action={{ label: t('common.back'), onClick: () => window.history.back() }}
       />
     );
   }
@@ -154,7 +156,7 @@ export const PropertyDetailPage: FC = () => {
       {/* Back Button */}
       <Link to="/properties" className="inline-flex items-center gap-2 text-solana-dark-400 hover:text-white transition-colors">
         <ArrowLeft className="w-4 h-4" />
-        Back to Properties
+        {t('common.back')}
       </Link>
 
       {/* Header */}
@@ -206,13 +208,13 @@ export const PropertyDetailPage: FC = () => {
 
           <Card className="p-4 space-y-3">
             <div className="flex justify-between">
-              <span className="text-solana-dark-400">Token Price</span>
+              <span className="text-solana-dark-400">{t('properties.tokenPrice')}</span>
               <span className="font-bold text-white text-xl">
                 ${property.details.valuePerToken.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-solana-dark-400">Annual Yield</span>
+              <span className="text-solana-dark-400">{t('properties.expectedYield')}</span>
               <span className="font-bold text-solana-green-400 text-xl">
                 {property.details.annualYieldPercent}%
               </span>
@@ -238,11 +240,11 @@ export const PropertyDetailPage: FC = () => {
               leftIcon={<Wallet className="w-5 h-5" />}
               onClick={() => setIsInvestModalOpen(true)}
             >
-              Invest Now
+              {t('properties.invest')}
             </Button>
           ) : (
             <Button variant="secondary" className="w-full" size="lg">
-              Connect Wallet to Invest
+              {t('common.connectWallet')}
             </Button>
           )}
         </div>
@@ -251,13 +253,13 @@ export const PropertyDetailPage: FC = () => {
       {/* Stats */}
       <StatsGrid cols={4}>
         <StatCard
-          title="Total Value"
+          title={t('portfolio.totalValue')}
           value={`$${property.details.totalValueUsd.toLocaleString()}`}
           icon={<Building2 className="w-6 h-6 text-solana-purple-400" />}
           iconBg="bg-solana-purple-500/20"
         />
         <StatCard
-          title="Total Supply"
+          title={t('properties.totalSupply')}
           value={Number(property.totalSupply).toLocaleString()}
           icon={<Users className="w-6 h-6 text-blue-400" />}
           iconBg="bg-blue-500/20"
@@ -269,7 +271,7 @@ export const PropertyDetailPage: FC = () => {
           iconBg="bg-solana-green-500/20"
         />
         <StatCard
-          title="Available"
+          title={t('properties.availableTokens')}
           value={Number(property.availableSupply).toLocaleString()}
           icon={<Wallet className="w-6 h-6 text-yellow-400" />}
           iconBg="bg-yellow-500/20"
@@ -282,7 +284,7 @@ export const PropertyDetailPage: FC = () => {
           {/* Description */}
           <Card className="lg:col-span-2 p-6">
             <CardHeader
-              title="About This Property"
+              title={t('properties.aboutProperty')}
               subtitle={property.details.location}
             />
             <p className="text-solana-dark-300 leading-relaxed whitespace-pre-wrap">
@@ -292,7 +294,7 @@ export const PropertyDetailPage: FC = () => {
 
           {/* Property Attributes */}
           <Card className="p-6">
-            <CardHeader title="Property Details" />
+            <CardHeader title={t('properties.propertyDetails')} />
             <div className="space-y-4">
               {getAttribute('Year Built') && (
                 <div className="flex items-center gap-3">

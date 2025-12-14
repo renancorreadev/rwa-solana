@@ -89,10 +89,72 @@ export class PostgresDatabase {
       CREATE INDEX IF NOT EXISTS idx_portfolio_snapshots_date ON portfolio_snapshots(snapshot_date DESC);
     `;
 
+    // Dividend calendar tables
+    const createScheduledDistributionsTable = `
+      CREATE TABLE IF NOT EXISTS scheduled_distributions (
+        id SERIAL PRIMARY KEY,
+        property_mint VARCHAR(50) NOT NULL,
+        property_name VARCHAR(100),
+        scheduled_date DATE NOT NULL,
+        estimated_amount_sol DECIMAL(20,9),
+        estimated_amount_brl DECIMAL(20,2),
+        notes TEXT,
+        status VARCHAR(20) DEFAULT 'scheduled',
+        actual_epoch_number INTEGER,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_sched_date ON scheduled_distributions(scheduled_date);
+      CREATE INDEX IF NOT EXISTS idx_sched_property ON scheduled_distributions(property_mint);
+    `;
+
+    const createClaimHistoryCacheTable = `
+      CREATE TABLE IF NOT EXISTS claim_history_cache (
+        id SERIAL PRIMARY KEY,
+        wallet_address VARCHAR(50) NOT NULL,
+        property_mint VARCHAR(50) NOT NULL,
+        property_name VARCHAR(100),
+        epoch_number INTEGER NOT NULL,
+        amount_sol DECIMAL(20,9) NOT NULL,
+        amount_brl DECIMAL(20,2),
+        token_balance_at_claim DECIMAL(20,6),
+        percentage_of_property DECIMAL(10,6),
+        claimed_at TIMESTAMP NOT NULL,
+        tx_signature VARCHAR(100),
+        synced_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(wallet_address, property_mint, epoch_number)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_claim_wallet ON claim_history_cache(wallet_address);
+      CREATE INDEX IF NOT EXISTS idx_claim_date ON claim_history_cache(claimed_at DESC);
+    `;
+
+    const createRevenueProjectionsTable = `
+      CREATE TABLE IF NOT EXISTS revenue_projections (
+        id SERIAL PRIMARY KEY,
+        property_mint VARCHAR(50) NOT NULL,
+        month DATE NOT NULL,
+        projected_revenue_sol DECIMAL(20,9),
+        projected_revenue_brl DECIMAL(20,2),
+        source VARCHAR(50) DEFAULT 'rental',
+        notes TEXT,
+        created_by VARCHAR(50),
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(property_mint, month)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_rev_proj_property ON revenue_projections(property_mint);
+      CREATE INDEX IF NOT EXISTS idx_rev_proj_month ON revenue_projections(month);
+    `;
+
     try {
       await this.query(createUserPreferencesTable);
       await this.query(createUserActivitiesTable);
       await this.query(createPortfolioSnapshotsTable);
+      await this.query(createScheduledDistributionsTable);
+      await this.query(createClaimHistoryCacheTable);
+      await this.query(createRevenueProjectionsTable);
       this.logger.info('Database tables created/verified successfully');
     } catch (error) {
       this.logger.error('Failed to create tables', error);

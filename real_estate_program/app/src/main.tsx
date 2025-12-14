@@ -1,6 +1,9 @@
 // IMPORTANT: Polyfills must be imported FIRST before any other imports
 import './polyfills';
 
+// i18n must be imported early
+import './i18n';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

@@ -3,3 +3,4 @@ export * from './Investor';
 export * from './Revenue';
 export * from './UserPreferences';
 export * from './UserActivity';
+export * from './Dividend';

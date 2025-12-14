@@ -1,6 +1,7 @@
 import { FC, useState, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
   TrendingUp,
@@ -34,9 +35,8 @@ import {
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { StatCard, StatsGrid } from '@/components/ui/Stats';
-import { PageLoading } from '@/components/ui/Loading';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { investorApi, propertiesApi } from '@/services/api';
+import { investorApi } from '@/services/api';
 import * as userApi from '@/services/api/user';
 import { format, formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -81,6 +81,7 @@ const getInsightBgColor = (type: 'positive' | 'negative' | 'neutral') => {
 };
 
 export const ReportsPage: FC = () => {
+  const { t } = useTranslation();
   const { publicKey, connected } = useWallet();
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 
@@ -233,8 +234,8 @@ export const ReportsPage: FC = () => {
     return (
       <EmptyState
         icon={<Wallet className="w-10 h-10" />}
-        title="Connect Your Wallet"
-        description="Connect your Solana wallet to view your investment reports and analytics."
+        title={t('common.connectWallet')}
+        description={t('errors.walletNotConnected')}
       />
     );
   }
@@ -254,9 +255,9 @@ export const ReportsPage: FC = () => {
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-white flex items-center gap-3">
             <BarChart3 className="w-8 h-8 text-solana-purple-400" />
-            Reports & Analytics
+            {t('reports.title')}
           </h1>
-          <p className="text-solana-dark-400 mt-1">Track your investment performance and insights</p>
+          <p className="text-solana-dark-400 mt-1">{t('reports.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -283,7 +284,7 @@ export const ReportsPage: FC = () => {
             leftIcon={<Download className="w-4 h-4" />}
             onClick={exportReport}
           >
-            Export
+            {t('reports.exportData')}
           </Button>
         </div>
       </div>
@@ -293,7 +294,7 @@ export const ReportsPage: FC = () => {
         <div className="flex items-center gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
           <AlertCircle className="w-5 h-5 text-yellow-400" />
           <div>
-            <p className="font-medium text-white">Analytics data unavailable</p>
+            <p className="font-medium text-white">{t('common.error')}</p>
             <p className="text-sm text-solana-dark-400">Showing data from your current portfolio.</p>
           </div>
         </div>
@@ -302,7 +303,7 @@ export const ReportsPage: FC = () => {
       {/* Performance Overview */}
       <StatsGrid cols={4}>
         <StatCard
-          title="Portfolio Value"
+          title={t('reports.portfolioValue')}
           value={`$${portfolio?.totalValueUsd?.toLocaleString() || '0'}`}
           icon={<DollarSign className="w-6 h-6 text-solana-purple-400" />}
           iconBg="bg-solana-purple-500/20"
@@ -312,19 +313,19 @@ export const ReportsPage: FC = () => {
           changeType={performanceMetrics.isPositive ? 'positive' : 'negative'}
         />
         <StatCard
-          title="Total Invested"
+          title={t('portfolio.totalInvested')}
           value={`$${analytics?.summary?.totalInvested?.toLocaleString() || '0'}`}
           icon={<TrendingUp className="w-6 h-6 text-solana-green-400" />}
           iconBg="bg-solana-green-500/20"
         />
         <StatCard
-          title="Properties"
+          title={t('properties.title')}
           value={portfolio?.totalProperties || analytics?.summary?.totalProperties || 0}
           icon={<Building2 className="w-6 h-6 text-blue-400" />}
           iconBg="bg-blue-500/20"
         />
         <StatCard
-          title="Avg. Yield"
+          title={t('reports.avgYield')}
           value={`${analytics?.summary?.averageYield?.toFixed(1) || '0'}%`}
           icon={<Percent className="w-6 h-6 text-yellow-400" />}
           iconBg="bg-yellow-500/20"
@@ -337,7 +338,7 @@ export const ReportsPage: FC = () => {
         {/* Portfolio Value Chart */}
         <Card className="lg:col-span-2">
           <CardHeader
-            title="Portfolio Value Over Time"
+            title={t('reports.portfolioOverTime')}
             subtitle={`Last ${timeRange === 'all' ? 'year' : timeRange}`}
           />
           <div className="h-80">
@@ -384,7 +385,7 @@ export const ReportsPage: FC = () => {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center">
-                <p className="text-solana-dark-400">No data available yet</p>
+                <p className="text-solana-dark-400">{t('common.noData')}</p>
               </div>
             )}
           </div>
@@ -392,7 +393,7 @@ export const ReportsPage: FC = () => {
 
         {/* Portfolio Allocation */}
         <Card>
-          <CardHeader title="Portfolio Allocation" subtitle="By property" />
+          <CardHeader title={t('reports.assetAllocation')} subtitle="By property" />
           <div className="h-80">
             {allocationData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -428,7 +429,7 @@ export const ReportsPage: FC = () => {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center">
-                <p className="text-solana-dark-400">No holdings to display</p>
+                <p className="text-solana-dark-400">{t('portfolio.noHoldings')}</p>
               </div>
             )}
           </div>
@@ -438,7 +439,7 @@ export const ReportsPage: FC = () => {
       {/* Revenue Analysis */}
       <Card>
         <CardHeader
-          title="Revenue Analysis"
+          title={t('reports.revenueOverTime')}
           subtitle="Monthly revenue distribution"
         />
         <div className="h-72">
@@ -484,7 +485,7 @@ export const ReportsPage: FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Transactions */}
         <Card>
-          <CardHeader title="Recent Activity" subtitle="Your latest transactions" />
+          <CardHeader title={t('dashboard.recentActivity')} subtitle="Your latest transactions" />
           <div className="space-y-3">
             {recentActivities.length > 0 ? (
               recentActivities.map((activity) => (
@@ -521,7 +522,7 @@ export const ReportsPage: FC = () => {
               ))
             ) : (
               <div className="py-8 text-center text-solana-dark-400">
-                No recent activity
+                {t('reports.noActivities')}
               </div>
             )}
           </div>
@@ -529,7 +530,7 @@ export const ReportsPage: FC = () => {
 
         {/* Investment Insights */}
         <Card>
-          <CardHeader title="Investment Insights" subtitle="Personalized recommendations" />
+          <CardHeader title={t('reports.insights')} subtitle="Personalized recommendations" />
           <div className="space-y-4">
             {insights.map((insight, index) => (
               <div
@@ -566,7 +567,7 @@ export const ReportsPage: FC = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-solana-dark-700">
-                <th className="text-left py-3 px-4 text-sm font-medium text-solana-dark-400">Property</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-solana-dark-400">{t('dividends.property')}</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-solana-dark-400">Value</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-solana-dark-400">Tokens</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-solana-dark-400">Yield</th>
@@ -603,7 +604,7 @@ export const ReportsPage: FC = () => {
               {(!portfolio?.holdings || portfolio.holdings.length === 0) && (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-solana-dark-400">
-                    No holdings to display
+                    {t('portfolio.noHoldings')}
                   </td>
                 </tr>
               )}

@@ -1,5 +1,6 @@
 import { FC, useState, useEffect, useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   Building2,
@@ -77,6 +78,7 @@ const InfoTooltip: FC<{ text: string }> = ({ text }) => (
 );
 
 export const AdminPage: FC = () => {
+  const { t } = useTranslation();
   const { publicKey, connected } = useWallet();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -519,8 +521,8 @@ export const AdminPage: FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white">Admin Panel</h1>
-          <p className="text-solana-dark-400">Manage properties, tokens and revenue distribution</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white">{t('admin.title')}</h1>
+          <p className="text-solana-dark-400">{t('admin.subtitle')}</p>
         </div>
         <Button
           variant="ghost"
@@ -567,10 +569,10 @@ export const AdminPage: FC = () => {
       {/* Tabs */}
       <div className="flex gap-2 border-b border-solana-dark-700 pb-2">
         {[
-          { id: 'properties', label: 'Properties', icon: Building2 },
-          { id: 'create', label: 'Create Property', icon: Plus },
-          { id: 'mint', label: 'Mint Tokens', icon: Coins },
-          { id: 'revenue', label: 'Deposit Revenue', icon: DollarSign },
+          { id: 'properties', label: t('admin.properties'), icon: Building2 },
+          { id: 'create', label: t('admin.createProperty'), icon: Plus },
+          { id: 'mint', label: t('admin.mintTokens'), icon: Coins },
+          { id: 'revenue', label: t('admin.depositRevenue'), icon: DollarSign },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -684,7 +686,7 @@ export const AdminPage: FC = () => {
       {/* Create Property Form */}
       {activeTab === 'create' && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Create New Property</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">{t('admin.createProperty')}</h3>
           <form onSubmit={handleCreateProperty} className="space-y-6">
             {/* Property Images */}
             <div>
@@ -705,7 +707,7 @@ export const AdminPage: FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Property Name</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.propertyName')}</label>
                 <input
                   type="text"
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
@@ -717,7 +719,7 @@ export const AdminPage: FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Symbol</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.propertySymbol')}</label>
                 <input
                   type="text"
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none uppercase"
@@ -729,7 +731,7 @@ export const AdminPage: FC = () => {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Description</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.description')}</label>
                 <textarea
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none resize-none"
                   placeholder="A detailed description of the property, its features, and investment highlights..."
@@ -744,7 +746,7 @@ export const AdminPage: FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                  Total Token Supply
+                  {t('admin.totalSupply')}
                   <InfoTooltip text="Calculado automaticamente: Valor Total ÷ Preço por Token. Este é o número total de tokens que representam o imóvel." />
                 </label>
                 <input
@@ -926,9 +928,9 @@ export const AdminPage: FC = () => {
                   Creating Metadata on IPFS...
                 </>
               ) : isSubmitting ? (
-                'Creating Property...'
+                t('admin.creating')
               ) : (
-                'Create Property'
+                t('admin.create')
               )}
             </Button>
             {uploadedImages.some((img) => img.isUploading) && (
@@ -943,17 +945,17 @@ export const AdminPage: FC = () => {
       {/* Mint Tokens Form */}
       {activeTab === 'mint' && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Mint Tokens to Investor</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">{t('admin.mintTokens')}</h3>
           <form onSubmit={handleMintTokens} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-solana-dark-300 mb-2">Property Mint Address</label>
+              <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.selectProperty')}</label>
               <select
                 className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
                 value={mintForm.propertyMint}
                 onChange={(e) => setMintForm({ ...mintForm, propertyMint: e.target.value })}
                 required
               >
-                <option value="">Select a property</option>
+                <option value="">{t('admin.selectProperty')}</option>
                 {properties.map((p) => (
                   <option key={p.mint} value={p.mint}>
                     {p.name} ({p.symbol}) - {parseInt(p.circulatingSupply).toLocaleString()}/{parseInt(p.totalSupply).toLocaleString()}
@@ -962,7 +964,7 @@ export const AdminPage: FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-solana-dark-300 mb-2">Investor Wallet Address</label>
+              <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.recipientWallet')}</label>
               <input
                 type="text"
                 className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none font-mono"
@@ -976,7 +978,7 @@ export const AdminPage: FC = () => {
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-solana-dark-300 mb-2">Amount of Tokens</label>
+              <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.tokenAmount')}</label>
               <input
                 type="number"
                 className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
@@ -988,7 +990,7 @@ export const AdminPage: FC = () => {
               />
             </div>
             <Button type="submit" className="w-full" isLoading={isSubmitting}>
-              {isSubmitting ? 'Minting...' : 'Mint Tokens'}
+              {isSubmitting ? t('admin.minting_action') : t('admin.mint')}
             </Button>
           </form>
         </Card>
@@ -1017,7 +1019,7 @@ export const AdminPage: FC = () => {
 
           {/* Form */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-white mb-6">Depositar Receita (Dividendos)</h3>
+            <h3 className="text-lg font-semibold text-white mb-6">{t('admin.depositRevenue')}</h3>
             <form onSubmit={handleDepositRevenue} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2">Propriedade</label>
@@ -1214,7 +1216,7 @@ export const AdminPage: FC = () => {
               </div>
 
               <Button type="submit" className="w-full" isLoading={isSubmitting} variant="success">
-                {isSubmitting ? 'Depositando...' : `Depositar ${revenueForm.amountSol || '0'} SOL`}
+                {isSubmitting ? t('admin.depositing') : `${t('admin.deposit')} ${revenueForm.amountSol || '0'} SOL`}
               </Button>
             </form>
           </Card>

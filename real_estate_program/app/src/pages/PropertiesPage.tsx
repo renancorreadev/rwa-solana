@@ -1,6 +1,7 @@
 import { FC, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Building2, Search, Grid, List } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -11,6 +12,7 @@ import { propertiesApi } from '@/services/api';
 import { Property, PropertyStatus } from '@/types';
 
 export const PropertiesPage: FC = () => {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<PropertyStatus | 'all'>('all');
@@ -44,9 +46,9 @@ export const PropertiesPage: FC = () => {
     return (
       <EmptyState
         icon={<Building2 className="w-10 h-10" />}
-        title="Failed to load properties"
-        description="There was an error loading the properties. Please try again later."
-        action={{ label: 'Retry', onClick: () => window.location.reload() }}
+        title={t('errors.generic')}
+        description={t('errors.networkError')}
+        action={{ label: t('common.refresh'), onClick: () => window.location.reload() }}
       />
     );
   }
@@ -56,8 +58,8 @@ export const PropertiesPage: FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white">Properties</h1>
-          <p className="text-solana-dark-400">Browse available real estate investments</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white">{t('properties.title')}</h1>
+          <p className="text-solana-dark-400">{t('properties.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -83,7 +85,7 @@ export const PropertiesPage: FC = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-solana-dark-400" />
           <input
             type="text"
-            placeholder="Search properties..."
+            placeholder={t('properties.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input pl-12"
@@ -97,7 +99,7 @@ export const PropertiesPage: FC = () => {
               size="sm"
               onClick={() => setStatusFilter(status)}
             >
-              {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+              {status === 'all' ? t('properties.allTypes') : status.charAt(0).toUpperCase() + status.slice(1)}
             </Button>
           ))}
         </div>
@@ -111,24 +113,24 @@ export const PropertiesPage: FC = () => {
         }>
           {filteredProperties.map((property) => (
             viewMode === 'grid' ? (
-              <PropertyCard key={property.mint} property={property} />
+              <PropertyCard key={property.mint} property={property} t={t} />
             ) : (
-              <PropertyListItem key={property.mint} property={property} />
+              <PropertyListItem key={property.mint} property={property} t={t} />
             )
           ))}
         </div>
       ) : (
         <EmptyState
           icon={<Building2 className="w-10 h-10" />}
-          title="No properties found"
-          description="Try adjusting your search or filters to find what you're looking for."
+          title={t('properties.noProperties')}
+          description={t('common.noData')}
         />
       )}
     </div>
   );
 };
 
-const PropertyCard: FC<{ property: Property }> = ({ property }) => {
+const PropertyCard: FC<{ property: Property; t: (key: string) => string }> = ({ property, t }) => {
   return (
     <Link to={`/properties/${property.mint}`}>
       <Card variant="hover" padding="none">
@@ -157,13 +159,13 @@ const PropertyCard: FC<{ property: Property }> = ({ property }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-solana-dark-500 uppercase tracking-wide">Total Value</p>
+              <p className="text-xs text-solana-dark-500 uppercase tracking-wide">{t('portfolio.totalValue')}</p>
               <p className="font-semibold text-white">
                 ${property.details.totalValueUsd.toLocaleString()}
               </p>
             </div>
             <div>
-              <p className="text-xs text-solana-dark-500 uppercase tracking-wide">Token Price</p>
+              <p className="text-xs text-solana-dark-500 uppercase tracking-wide">{t('properties.tokenPrice')}</p>
               <p className="font-semibold text-white">
                 ${property.details.valuePerToken.toFixed(2)}
               </p>
@@ -172,7 +174,7 @@ const PropertyCard: FC<{ property: Property }> = ({ property }) => {
 
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-solana-dark-800">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-solana-dark-400">Annual Yield</span>
+              <span className="text-xs text-solana-dark-400">{t('properties.expectedYield')}</span>
               <span className="font-semibold text-solana-green-400">
                 {property.details.annualYieldPercent}%
               </span>
@@ -187,7 +189,7 @@ const PropertyCard: FC<{ property: Property }> = ({ property }) => {
   );
 };
 
-const PropertyListItem: FC<{ property: Property }> = ({ property }) => {
+const PropertyListItem: FC<{ property: Property; t: (key: string) => string }> = ({ property, t }) => {
   return (
     <Link to={`/properties/${property.mint}`}>
       <Card variant="hover" className="flex flex-col sm:flex-row gap-4">
@@ -217,19 +219,19 @@ const PropertyListItem: FC<{ property: Property }> = ({ property }) => {
           </div>
           <div className="flex flex-wrap gap-4 mt-4">
             <div>
-              <p className="text-xs text-solana-dark-500">Total Value</p>
+              <p className="text-xs text-solana-dark-500">{t('portfolio.totalValue')}</p>
               <p className="font-semibold text-white">
                 ${property.details.totalValueUsd.toLocaleString()}
               </p>
             </div>
             <div>
-              <p className="text-xs text-solana-dark-500">Token Price</p>
+              <p className="text-xs text-solana-dark-500">{t('properties.tokenPrice')}</p>
               <p className="font-semibold text-white">
                 ${property.details.valuePerToken.toFixed(2)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-solana-dark-500">Annual Yield</p>
+              <p className="text-xs text-solana-dark-500">{t('properties.expectedYield')}</p>
               <p className="font-semibold text-solana-green-400">
                 {property.details.annualYieldPercent}%
               </p>

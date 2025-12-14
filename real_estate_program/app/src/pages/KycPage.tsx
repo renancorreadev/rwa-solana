@@ -1,5 +1,6 @@
 import { FC, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   Wallet,
@@ -26,7 +27,8 @@ const KycForm: FC<{
   credentialType: CredentialType;
   onSubmit: (data: Record<string, any>) => Promise<void>;
   isSubmitting: boolean;
-}> = ({ credentialType, onSubmit, isSubmitting }) => {
+  t: (key: string) => string;
+}> = ({ credentialType, onSubmit, isSubmitting, t }) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -192,13 +194,14 @@ const KycForm: FC<{
     <form onSubmit={handleSubmit} className="space-y-4">
       {renderFields()}
       <Button type="submit" className="w-full" isLoading={isSubmitting}>
-        Submit Verification
+        {t('common.submit')}
       </Button>
     </form>
   );
 };
 
 export const KycPage: FC = () => {
+  const { t } = useTranslation();
   const { publicKey, connected } = useWallet();
   const {
     credential,
@@ -278,8 +281,8 @@ export const KycPage: FC = () => {
     return (
       <EmptyState
         icon={<Wallet className="w-10 h-10" />}
-        title="Connect Your Wallet"
-        description="Connect your Solana wallet to verify your identity with Hub Credential."
+        title={t('common.connectWallet')}
+        description={t('errors.walletNotConnected')}
       />
     );
   }
@@ -298,11 +301,11 @@ export const KycPage: FC = () => {
 
   const getStatusBadge = () => {
     if (!hasCredential) {
-      return <Badge variant="default">No Credential</Badge>;
+      return <Badge variant="default">{t('kyc.noCredentials')}</Badge>;
     }
     switch (credential?.status) {
       case CredentialStatus.Active:
-        return <Badge variant="success">Verified</Badge>;
+        return <Badge variant="success">{t('kyc.verified')}</Badge>;
       case CredentialStatus.Expired:
         return <Badge variant="warning">Expired</Badge>;
       case CredentialStatus.Revoked:
@@ -317,17 +320,17 @@ export const KycPage: FC = () => {
   const getCredentialTypeLabel = (type: CredentialType) => {
     switch (type) {
       case CredentialType.KycBasic:
-        return 'Basic KYC';
+        return t('kyc.basicKyc');
       case CredentialType.KycFull:
-        return 'Full KYC';
+        return t('kyc.fullKyc');
       case CredentialType.AccreditedInvestor:
-        return 'Accredited Investor';
+        return t('kyc.accreditedInvestor');
       case CredentialType.QualifiedPurchaser:
-        return 'Qualified Purchaser';
+        return t('kyc.qualifiedPurchaser');
       case CredentialType.BrazilianCpf:
-        return 'Brazilian CPF';
+        return t('kyc.brazilianCpf');
       case CredentialType.BrazilianCnpj:
-        return 'Brazilian CNPJ';
+        return t('kyc.brazilianCnpj');
       default:
         return type;
     }
@@ -342,8 +345,8 @@ export const KycPage: FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white">Identity Verification</h1>
-          <p className="text-solana-dark-400">Verify your identity with Hub Credential to enable token transfers</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white">{t('kyc.title')}</h1>
+          <p className="text-solana-dark-400">{t('kyc.subtitle')}</p>
         </div>
         <Button
           variant="ghost"
@@ -351,7 +354,7 @@ export const KycPage: FC = () => {
           onClick={refresh}
           leftIcon={<RefreshCw className="w-4 h-4" />}
         >
-          Refresh
+          {t('common.refresh')}
         </Button>
       </div>
 
@@ -366,13 +369,13 @@ export const KycPage: FC = () => {
         <Card className="p-6 bg-solana-green-500/10 border-solana-green-500/30">
           <div className="flex flex-col items-center text-center">
             <CheckCircle2 className="w-12 h-12 text-solana-green-400 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Verification Successful!</h3>
+            <h3 className="text-xl font-bold text-white mb-2">{t('common.success')}</h3>
             <p className="text-solana-dark-300 mb-4">
-              Your credential has been issued on-chain.
+              {t('kyc.verified')}
             </p>
             {lastTxSignature && (
               <div className="w-full max-w-md bg-solana-dark-800/50 rounded-lg p-4 mb-4">
-                <p className="text-sm text-solana-dark-400 mb-2">Transaction Signature</p>
+                <p className="text-sm text-solana-dark-400 mb-2">{t('dividends.transaction')}</p>
                 <div className="flex items-center justify-center gap-2">
                   <code className="text-xs font-mono text-solana-green-400 break-all">
                     {lastTxSignature.slice(0, 20)}...{lastTxSignature.slice(-20)}
@@ -386,14 +389,14 @@ export const KycPage: FC = () => {
                     className="mt-3 inline-flex items-center gap-2 text-solana-purple-400 hover:text-solana-purple-300 transition-colors"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    View on Solana Explorer
+                    {t('dashboard.viewOnExplorer')}
                   </a>
                 )}
               </div>
             )}
             {credentialPDA && explorerUrl && (
               <div className="w-full max-w-md bg-solana-dark-800/50 rounded-lg p-4 mb-4">
-                <p className="text-sm text-solana-dark-400 mb-2">Credential Account</p>
+                <p className="text-sm text-solana-dark-400 mb-2">{t('kyc.credentials')}</p>
                 <div className="flex items-center justify-center gap-2">
                   <code className="text-xs font-mono text-white">
                     {credentialPDA.toString().slice(0, 12)}...{credentialPDA.toString().slice(-12)}
@@ -406,7 +409,7 @@ export const KycPage: FC = () => {
                   className="mt-3 inline-flex items-center gap-2 text-solana-purple-400 hover:text-solana-purple-300 transition-colors"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  View Credential on Explorer
+                  {t('dashboard.viewOnExplorer')}
                 </a>
               </div>
             )}
@@ -415,7 +418,7 @@ export const KycPage: FC = () => {
               onClick={() => setShowSuccess(false)}
               className="mt-2"
             >
-              Close
+              {t('common.close')}
             </Button>
           </div>
         </Card>
@@ -431,7 +434,7 @@ export const KycPage: FC = () => {
             {getStatusBadge()}
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">
-            {isActive ? 'Identity Verified!' : hasCredential ? 'Credential Inactive' : 'Verification Required'}
+            {isActive ? t('kyc.verified') : hasCredential ? t('kyc.notVerified') : t('kyc.verificationRequired')}
           </h2>
           <p className="text-solana-dark-400 max-w-md mb-8">
             {isActive
@@ -444,16 +447,16 @@ export const KycPage: FC = () => {
           {!isActive && !showForm && (
             <div className="space-y-4 w-full max-w-md">
               <div>
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Select Verification Type</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('kyc.title')}</label>
                 <select
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value as CredentialType)}
                 >
-                  <option value={CredentialType.KycBasic}>Basic KYC</option>
-                  <option value={CredentialType.BrazilianCpf}>Brazilian CPF</option>
-                  <option value={CredentialType.BrazilianCnpj}>Brazilian CNPJ</option>
-                  <option value={CredentialType.AccreditedInvestor}>Accredited Investor</option>
+                  <option value={CredentialType.KycBasic}>{t('kyc.basicKyc')}</option>
+                  <option value={CredentialType.BrazilianCpf}>{t('kyc.brazilianCpf')}</option>
+                  <option value={CredentialType.BrazilianCnpj}>{t('kyc.brazilianCnpj')}</option>
+                  <option value={CredentialType.AccreditedInvestor}>{t('kyc.accreditedInvestor')}</option>
                 </select>
               </div>
               <Button
@@ -462,7 +465,7 @@ export const KycPage: FC = () => {
                 leftIcon={<Shield className="w-5 h-5" />}
                 className="w-full"
               >
-                Start Verification
+                {t('kyc.startVerification')}
               </Button>
             </div>
           )}
@@ -476,6 +479,7 @@ export const KycPage: FC = () => {
                 credentialType={selectedType}
                 onSubmit={handleSubmitKyc}
                 isSubmitting={isSubmitting}
+                t={t}
               />
               <Button
                 variant="ghost"
@@ -485,7 +489,7 @@ export const KycPage: FC = () => {
                   setSessionId(null);
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           )}

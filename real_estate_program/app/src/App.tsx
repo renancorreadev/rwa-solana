@@ -9,6 +9,7 @@ import { KycPage } from './pages/KycPage';
 import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { DividendsPage } from './pages/DividendsPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/dividends" element={<DividendsPage />} />
       </Routes>
     </Layout>
   );

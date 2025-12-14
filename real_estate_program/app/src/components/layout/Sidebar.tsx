@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   Building2,
@@ -9,27 +10,29 @@ import {
   Shield,
   Settings,
   HelpCircle,
-  ExternalLink,
   BarChart3,
+  CircleDollarSign,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard', requiresAuth: false },
-  { to: '/properties', icon: Building2, label: 'Properties', requiresAuth: false },
-  { to: '/portfolio', icon: Wallet, label: 'Portfolio', requiresAuth: true },
-  { to: '/revenue', icon: TrendingUp, label: 'Revenue', requiresAuth: true },
-  { to: '/reports', icon: BarChart3, label: 'Reports', requiresAuth: true },
-  { to: '/kyc', icon: Shield, label: 'KYC Verification', requiresAuth: true },
+  { to: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard', requiresAuth: false },
+  { to: '/properties', icon: Building2, labelKey: 'nav.properties', requiresAuth: false },
+  { to: '/portfolio', icon: Wallet, labelKey: 'nav.portfolio', requiresAuth: true },
+  { to: '/dividends', icon: CircleDollarSign, labelKey: 'nav.dividends', requiresAuth: true },
+  { to: '/revenue', icon: TrendingUp, labelKey: 'nav.revenue', requiresAuth: true },
+  { to: '/reports', icon: BarChart3, labelKey: 'nav.reports', requiresAuth: true },
+  { to: '/kyc', icon: Shield, labelKey: 'nav.kyc', requiresAuth: true },
 ];
 
 const bottomItems = [
-  { to: '/settings', icon: Settings, label: 'Settings' },
-  { to: '/help', icon: HelpCircle, label: 'Help & Support' },
+  { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
+  { to: '/help', icon: HelpCircle, labelKey: 'nav.help' },
 ];
 
 export const Sidebar: FC = () => {
   const { connected } = useWallet();
+  const { t } = useTranslation();
 
   return (
     <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:w-64 lg:flex lg:flex-col glass border-r border-white/5 pt-20">
@@ -52,38 +55,15 @@ export const Sidebar: FC = () => {
               }
             >
               <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium">{t(item.labelKey)}</span>
               {isDisabled && (
-                <span className="ml-auto text-xs text-solana-dark-500">Connect</span>
+                <span className="ml-auto text-xs text-solana-dark-500">{t('common.connect')}</span>
               )}
             </NavLink>
           );
         })}
       </nav>
 
-      {/* Stats Card */}
-      <div className="px-4 py-4">
-        <div className="card p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-solana-green-500/20 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-solana-green-500" />
-            </div>
-            <div>
-              <p className="text-sm text-solana-dark-400">Total Value Locked</p>
-              <p className="text-lg font-bold text-white">$1.2M</p>
-            </div>
-          </div>
-          <a
-            href="https://explorer.solana.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-solana-purple-400 hover:text-solana-purple-300"
-          >
-            View on Explorer
-            <ExternalLink className="w-4 h-4" />
-          </a>
-        </div>
-      </div>
 
       {/* Bottom Nav */}
       <div className="px-4 py-4 border-t border-white/5">
@@ -94,7 +74,7 @@ export const Sidebar: FC = () => {
             className="flex items-center gap-3 px-4 py-2.5 text-solana-dark-400 hover:text-white rounded-lg transition-colors"
           >
             <item.icon className="w-5 h-5" />
-            <span className="text-sm">{item.label}</span>
+            <span className="text-sm">{t(item.labelKey)}</span>
           </NavLink>
         ))}
       </div>

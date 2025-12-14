@@ -16,6 +16,7 @@ export const TOKENS = {
   RevenueRepository: Symbol.for('RevenueRepository'),
   UserPreferencesRepository: Symbol.for('UserPreferencesRepository'),
   UserAnalyticsRepository: Symbol.for('UserAnalyticsRepository'),
+  DividendRepository: Symbol.for('DividendRepository'),
 
   // Services
   KycService: Symbol.for('KycService'),
@@ -25,6 +26,7 @@ export const TOKENS = {
   TransactionService: Symbol.for('TransactionService'),
   IpfsService: Symbol.for('IpfsService'),
   AdminService: Symbol.for('AdminService'),
+  PlatformStatsService: Symbol.for('PlatformStatsService'),
 
   // Use Cases
   CreatePropertyUseCase: Symbol.for('CreatePropertyUseCase'),

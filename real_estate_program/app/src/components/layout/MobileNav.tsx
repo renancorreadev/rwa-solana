@@ -1,19 +1,21 @@
 import { FC } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { LayoutDashboard, Building2, Wallet, BarChart3, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { LayoutDashboard, Building2, Wallet, BarChart3, CircleDollarSign } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Home' },
-  { to: '/properties', icon: Building2, label: 'Properties' },
-  { to: '/portfolio', icon: Wallet, label: 'Portfolio', requiresAuth: true },
-  { to: '/reports', icon: BarChart3, label: 'Reports', requiresAuth: true },
-  { to: '/settings', icon: Settings, label: 'Settings', requiresAuth: true },
+  { to: '/', icon: LayoutDashboard, labelKey: 'nav.home' },
+  { to: '/properties', icon: Building2, labelKey: 'nav.properties' },
+  { to: '/portfolio', icon: Wallet, labelKey: 'nav.portfolio', requiresAuth: true },
+  { to: '/dividends', icon: CircleDollarSign, labelKey: 'nav.dividends', requiresAuth: true },
+  { to: '/reports', icon: BarChart3, labelKey: 'nav.reports', requiresAuth: true },
 ];
 
 export const MobileNav: FC = () => {
   const { connected } = useWallet();
+  const { t } = useTranslation();
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-white/5 safe-area-pb">
@@ -45,7 +47,7 @@ export const MobileNav: FC = () => {
                   >
                     <item.icon className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-medium">{item.label}</span>
+                  <span className="text-[10px] font-medium">{t(item.labelKey)}</span>
                 </>
               )}
             </NavLink>

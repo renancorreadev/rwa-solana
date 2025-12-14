@@ -18,23 +18,15 @@ COPY . .
 # Build for production
 RUN npm run build
 
-# Production image - serve with Node
-FROM node:20-alpine AS runner
-
-WORKDIR /app
-
-# Install serve globally
-RUN npm install -g serve
+# Production image - nginx with reverse proxy
+FROM nginx:alpine AS runner
 
 # Copy built files
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Create non-root user and fix permissions
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001 && \
-    chown -R nodejs:nodejs /app/dist
-USER nodejs
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 5173
 
-# Serve the app
-CMD ["serve", "-s", "dist", "-l", "5173"]
+CMD ["nginx", "-g", "daemon off;"]

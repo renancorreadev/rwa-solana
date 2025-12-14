@@ -18,6 +18,7 @@ import { InvestorRepositoryImpl } from '../../infrastructure/repositories/Invest
 import { RevenueRepositoryImpl } from '../../infrastructure/repositories/RevenueRepositoryImpl';
 import { UserPreferencesRepositoryImpl } from '../../infrastructure/repositories/UserPreferencesRepositoryImpl';
 import { UserAnalyticsRepositoryImpl } from '../../infrastructure/repositories/UserAnalyticsRepositoryImpl';
+import { DividendRepositoryImpl } from '../../infrastructure/repositories/DividendRepositoryImpl';
 
 // Use Cases
 import { GetPropertiesUseCase } from '../../application/use-cases/GetPropertiesUseCase';
@@ -27,6 +28,9 @@ import { CreateKycAttestationUseCase } from '../../application/use-cases/CreateK
 import { GetInvestorPortfolioUseCase } from '../../application/use-cases/GetInvestorPortfolioUseCase';
 import { GetRevenueHistoryUseCase } from '../../application/use-cases/GetRevenueHistoryUseCase';
 import { GetClaimableRevenueUseCase } from '../../application/use-cases/GetClaimableRevenueUseCase';
+
+// Services
+import { PlatformStatsService } from '../../application/services/PlatformStatsService';
 
 /**
  * Configure dependency injection container
@@ -54,6 +58,10 @@ export function configureContainer(): DependencyContainer {
   container.registerSingleton(TOKENS.RevenueRepository, RevenueRepositoryImpl);
   container.registerSingleton(TOKENS.UserPreferencesRepository, UserPreferencesRepositoryImpl);
   container.registerSingleton(TOKENS.UserAnalyticsRepository, UserAnalyticsRepositoryImpl);
+  container.registerSingleton(TOKENS.DividendRepository, DividendRepositoryImpl);
+
+  // Register Services
+  container.registerSingleton(TOKENS.PlatformStatsService, PlatformStatsService);
 
   // Use cases are auto-registered via @injectable() decorator
 

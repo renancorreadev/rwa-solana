@@ -1,6 +1,7 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Settings,
   User,
@@ -38,6 +39,7 @@ export const SettingsPage: FC = () => {
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { t } = useTranslation();
 
   // Fetch user preferences from API
   const { data: preferences, isLoading: preferencesLoading, error: preferencesError } = useQuery({
@@ -130,8 +132,8 @@ export const SettingsPage: FC = () => {
     return (
       <EmptyState
         icon={<Wallet className="w-10 h-10" />}
-        title="Connect Your Wallet"
-        description="Connect your Solana wallet to access settings and preferences."
+        title={t('common.connectWallet')}
+        description={t('errors.walletNotConnected')}
       />
     );
   }
@@ -150,9 +152,9 @@ export const SettingsPage: FC = () => {
       <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-white flex items-center gap-3">
           <Settings className="w-8 h-8 text-solana-purple-400" />
-          Settings
+          {t('settings.title')}
         </h1>
-        <p className="text-solana-dark-400 mt-1">Manage your account and preferences</p>
+        <p className="text-solana-dark-400 mt-1">{t('settings.subtitle')}</p>
       </div>
 
       {/* API Error Warning */}
@@ -177,7 +179,7 @@ export const SettingsPage: FC = () => {
               <User className="w-8 h-8 text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-solana-dark-400">Wallet Address</p>
+              <p className="text-sm text-solana-dark-400">{t('wallet.address')}</p>
               <div className="flex items-center gap-2 mt-1">
                 <code className="text-white font-mono text-sm">
                   {publicKey?.toString().slice(0, 8)}...{publicKey?.toString().slice(-8)}
@@ -203,7 +205,7 @@ export const SettingsPage: FC = () => {
               </div>
             </div>
             <Button variant="secondary" size="sm" onClick={() => disconnect()}>
-              Disconnect
+              {t('wallet.disconnect')}
             </Button>
           </div>
 
@@ -214,7 +216,7 @@ export const SettingsPage: FC = () => {
                 <Shield className={`w-5 h-5 ${portfolio?.kycVerified ? 'text-solana-green-400' : 'text-yellow-400'}`} />
               </div>
               <div>
-                <p className="font-medium text-white">KYC Verification</p>
+                <p className="font-medium text-white">{t('kyc.title')}</p>
                 <p className="text-sm text-solana-dark-400">
                   Status: <span className={portfolio?.kycVerified ? 'text-solana-green-400' : 'text-yellow-400'}>
                     {portfolio?.kycStatus || 'Not verified'}
@@ -224,7 +226,7 @@ export const SettingsPage: FC = () => {
             </div>
             {!portfolio?.kycVerified && (
               <Button variant="primary" size="sm" onClick={() => window.location.href = '/kyc'}>
-                Verify Now
+                {t('kyc.startVerification')}
               </Button>
             )}
           </div>
@@ -256,7 +258,7 @@ export const SettingsPage: FC = () => {
 
       {/* Appearance */}
       <Card>
-        <CardHeader title="Appearance" subtitle="Customize how the app looks" />
+        <CardHeader title={t('settings.appearance')} subtitle="Customize how the app looks" />
 
         <div className="space-y-4">
           {/* Theme Selection */}
@@ -270,7 +272,7 @@ export const SettingsPage: FC = () => {
                 <Settings className="w-5 h-5 text-solana-dark-400" />
               )}
               <div>
-                <p className="font-medium text-white">Theme</p>
+                <p className="font-medium text-white">{t('settings.theme')}</p>
                 <p className="text-sm text-solana-dark-400">Choose your preferred theme</p>
               </div>
             </div>
@@ -286,7 +288,7 @@ export const SettingsPage: FC = () => {
                       : 'bg-solana-dark-700 text-solana-dark-300 hover:bg-solana-dark-600'
                   }`}
                 >
-                  {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                  {t(`settings.${theme}`)}
                 </button>
               ))}
             </div>
@@ -301,8 +303,8 @@ export const SettingsPage: FC = () => {
                 <Eye className="w-5 h-5 text-solana-green-400" />
               )}
               <div>
-                <p className="font-medium text-white">Hide Balances</p>
-                <p className="text-sm text-solana-dark-400">Hide your portfolio values for privacy</p>
+                <p className="font-medium text-white">{t('settings.hideBalances')}</p>
+                <p className="text-sm text-solana-dark-400">{t('settings.hideBalancesDescription')}</p>
               </div>
             </div>
             <button
@@ -325,7 +327,7 @@ export const SettingsPage: FC = () => {
             <div className="flex items-center gap-3">
               <Globe className="w-5 h-5 text-blue-400" />
               <div>
-                <p className="font-medium text-white">Currency</p>
+                <p className="font-medium text-white">{t('settings.currency')}</p>
                 <p className="text-sm text-solana-dark-400">Display values in your preferred currency</p>
               </div>
             </div>
@@ -345,7 +347,7 @@ export const SettingsPage: FC = () => {
 
       {/* Notifications */}
       <Card>
-        <CardHeader title="Notifications" subtitle="Manage how you receive updates" />
+        <CardHeader title={t('settings.notifications')} subtitle="Manage how you receive updates" />
 
         <div className="space-y-4">
           {/* Revenue Alerts */}
@@ -353,8 +355,8 @@ export const SettingsPage: FC = () => {
             <div className="flex items-center gap-3">
               <DollarSign className="w-5 h-5 text-solana-green-400" />
               <div>
-                <p className="font-medium text-white">Revenue Alerts</p>
-                <p className="text-sm text-solana-dark-400">Get notified when revenue is available</p>
+                <p className="font-medium text-white">{t('settings.revenueAlerts')}</p>
+                <p className="text-sm text-solana-dark-400">{t('settings.revenueAlertsDescription')}</p>
               </div>
             </div>
             <button
@@ -377,7 +379,7 @@ export const SettingsPage: FC = () => {
             <div className="flex items-center gap-3">
               <TrendingUp className="w-5 h-5 text-blue-400" />
               <div>
-                <p className="font-medium text-white">Price Alerts</p>
+                <p className="font-medium text-white">{t('settings.priceAlerts')}</p>
                 <p className="text-sm text-solana-dark-400">Get notified of significant price changes</p>
               </div>
             </div>
