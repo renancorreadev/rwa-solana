@@ -5,7 +5,9 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 interface StatCardProps {
   title: string;
   value: string | number;
-  change?: number;
+  change?: number | string;
+  changeType?: 'positive' | 'negative' | 'neutral';
+  subtitle?: string;
   icon?: ReactNode;
   iconBg?: string;
   className?: string;
@@ -15,11 +17,16 @@ export const StatCard: FC<StatCardProps> = ({
   title,
   value,
   change,
+  changeType,
+  subtitle,
   icon,
   iconBg = 'bg-solana-purple-500/20',
   className,
 }) => {
-  const isPositive = change !== undefined && change >= 0;
+  // Determine if positive based on changeType or numeric value
+  const isPositive = changeType
+    ? changeType === 'positive'
+    : typeof change === 'number' ? change >= 0 : String(change).startsWith('+');
 
   return (
     <div className={clsx('card p-5', className)}>
@@ -27,6 +34,9 @@ export const StatCard: FC<StatCardProps> = ({
         <div>
           <p className="text-sm text-solana-dark-400 mb-1">{title}</p>
           <p className="text-2xl font-bold text-white">{value}</p>
+          {subtitle && (
+            <p className="text-xs text-solana-dark-500 mt-1">{subtitle}</p>
+          )}
           {change !== undefined && (
             <div className={clsx(
               'flex items-center gap-1 mt-2 text-sm',
@@ -37,7 +47,7 @@ export const StatCard: FC<StatCardProps> = ({
               ) : (
                 <TrendingDown className="w-4 h-4" />
               )}
-              <span>{isPositive ? '+' : ''}{change}%</span>
+              <span>{typeof change === 'number' ? `${isPositive ? '+' : ''}${change}%` : change}</span>
             </div>
           )}
         </div>

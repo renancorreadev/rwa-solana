@@ -10,6 +10,7 @@ import {
   Settings,
   HelpCircle,
   ExternalLink,
+  BarChart3,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -18,6 +19,7 @@ const navItems = [
   { to: '/properties', icon: Building2, label: 'Properties', requiresAuth: false },
   { to: '/portfolio', icon: Wallet, label: 'Portfolio', requiresAuth: true },
   { to: '/revenue', icon: TrendingUp, label: 'Revenue', requiresAuth: true },
+  { to: '/reports', icon: BarChart3, label: 'Reports', requiresAuth: true },
   { to: '/kyc', icon: Shield, label: 'KYC Verification', requiresAuth: true },
 ];
 

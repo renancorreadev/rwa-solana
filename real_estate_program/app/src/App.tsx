@@ -7,6 +7,8 @@ import { PortfolioPage } from './pages/PortfolioPage';
 import { RevenuePage } from './pages/RevenuePage';
 import { KycPage } from './pages/KycPage';
 import { AdminPage } from './pages/AdminPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         <Route path="/revenue" element={<RevenuePage />} />
         <Route path="/kyc" element={<KycPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
       </Routes>
     </Layout>
   );

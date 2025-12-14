@@ -1,15 +1,15 @@
 import { FC } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { LayoutDashboard, Building2, Wallet, TrendingUp, Shield } from 'lucide-react';
+import { LayoutDashboard, Building2, Wallet, BarChart3, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Home' },
   { to: '/properties', icon: Building2, label: 'Properties' },
   { to: '/portfolio', icon: Wallet, label: 'Portfolio', requiresAuth: true },
-  { to: '/revenue', icon: TrendingUp, label: 'Revenue', requiresAuth: true },
-  { to: '/kyc', icon: Shield, label: 'KYC', requiresAuth: true },
+  { to: '/reports', icon: BarChart3, label: 'Reports', requiresAuth: true },
+  { to: '/settings', icon: Settings, label: 'Settings', requiresAuth: true },
 ];
 
 export const MobileNav: FC = () => {
