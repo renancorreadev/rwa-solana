@@ -24,8 +24,8 @@ import { PageLoading } from '@/components/ui/Loading';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ImageUploader } from '@/components/property/ImageUploader';
 
-// Admin API URL (Hub Token API)
-const ADMIN_API_URL = import.meta.env.VITE_HUB_API_URL || 'http://localhost:3003';
+// Admin API URL (Hub Token API) - empty string means use relative URLs via Kong proxy
+const ADMIN_API_URL = import.meta.env.VITE_HUB_API_URL ?? '';
 
 // Admin wallet address (must match keypair in ~/.config/solana/id.json)
 const ADMIN_WALLET = 'AMuiRHoJLS2zhpRtUqVJUpYi4xEGbZcmMsJpqVT9uCJw';

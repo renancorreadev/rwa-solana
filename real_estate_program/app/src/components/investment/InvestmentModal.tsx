@@ -17,8 +17,8 @@ import { Button } from '@/components/ui/Button';
 import { useHubCredential } from '@/hooks';
 import toast from 'react-hot-toast';
 
-// API URL
-const API_URL = import.meta.env.VITE_HUB_API_URL || 'http://localhost:3003';
+// API URL - empty string means use relative URLs via Kong proxy
+const API_URL = import.meta.env.VITE_HUB_API_URL ?? '';
 
 interface InvestmentModalProps {
   isOpen: boolean;

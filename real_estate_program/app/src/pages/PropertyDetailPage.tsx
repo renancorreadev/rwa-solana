@@ -28,8 +28,8 @@ import { InvestmentModal } from '@/components/investment';
 import { propertiesApi } from '@/services/api';
 import toast from 'react-hot-toast';
 
-// IPFS API URL (Hub Token API)
-const IPFS_API_URL = import.meta.env.VITE_HUB_API_URL || 'http://localhost:3003';
+// IPFS API URL (Hub Token API) - empty string means use relative URLs via Kong proxy
+const IPFS_API_URL = import.meta.env.VITE_HUB_API_URL ?? '';
 
 // Property metadata interface (from IPFS)
 interface PropertyMetadata {

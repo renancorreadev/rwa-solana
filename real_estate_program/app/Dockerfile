@@ -29,8 +29,9 @@ RUN npm install -g serve
 # Copy built files
 COPY --from=builder /app/dist ./dist
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+# Create non-root user and fix permissions
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app/dist
 USER nodejs
 
 EXPOSE 5173
