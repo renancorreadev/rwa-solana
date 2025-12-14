@@ -74,13 +74,7 @@ export const Header: FC = () => {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-solana-green-500 to-solana-purple-500 flex items-center justify-center shadow-lg shadow-solana-green-500/20">
-              <span className="text-xl font-bold text-white">K</span>
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-white">Kota</h1>
-              <p className="text-xs text-solana-dark-400">Tokenização Imobiliária</p>
-            </div>
+            <img src="/kota-logo.svg" alt="Kota Logo" className="w-full h-full" />
           </Link>
 
           {/* Search - Desktop only */}
