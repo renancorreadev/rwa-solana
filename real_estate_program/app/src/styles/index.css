@@ -114,3 +114,92 @@
     }
   }
 }
+
+/* Wallet Adapter Button Styles */
+.wallet-adapter-button-wrapper {
+  @apply flex-shrink-0;
+}
+
+.wallet-adapter-button {
+  @apply !bg-gradient-to-r !from-solana-green-500 !to-solana-purple-500
+         !rounded-xl !font-medium !text-white !h-10 !px-4
+         hover:!opacity-90 !transition-all !duration-200
+         !text-sm;
+}
+
+.wallet-adapter-button-trigger {
+  @apply !bg-gradient-to-r !from-solana-green-500 !to-solana-purple-500;
+}
+
+.wallet-adapter-button[disabled] {
+  @apply !opacity-50 !cursor-not-allowed;
+}
+
+/* Mobile: Show only icon */
+@media (max-width: 640px) {
+  .wallet-adapter-button {
+    @apply !px-3 !min-w-0;
+  }
+
+  .wallet-adapter-button-start-icon {
+    @apply !mr-0;
+  }
+
+  .wallet-adapter-button > span:not(.wallet-adapter-button-start-icon) {
+    @apply !hidden;
+  }
+}
+
+/* Tablet and up: Show full button */
+@media (min-width: 641px) {
+  .wallet-adapter-button {
+    @apply !px-4;
+  }
+}
+
+/* Dropdown styles */
+.wallet-adapter-dropdown {
+  @apply !z-50;
+}
+
+.wallet-adapter-dropdown-list {
+  @apply !bg-solana-dark-800 !border !border-solana-dark-700 !rounded-xl
+         !shadow-xl !overflow-hidden !mt-2;
+}
+
+.wallet-adapter-dropdown-list-item {
+  @apply !bg-transparent hover:!bg-solana-dark-700 !text-white !px-4 !py-3
+         !transition-colors;
+}
+
+.wallet-adapter-dropdown-list-item:not(:last-child) {
+  @apply !border-b !border-solana-dark-700;
+}
+
+.wallet-adapter-modal-wrapper {
+  @apply !bg-solana-dark-900/95 !backdrop-blur-xl;
+}
+
+.wallet-adapter-modal-container {
+  @apply !bg-solana-dark-800 !border !border-solana-dark-700 !rounded-2xl;
+}
+
+.wallet-adapter-modal-title {
+  @apply !text-white !font-semibold;
+}
+
+.wallet-adapter-modal-list {
+  @apply !bg-transparent;
+}
+
+.wallet-adapter-modal-list-more {
+  @apply !text-solana-purple-400 hover:!text-solana-purple-300;
+}
+
+.wallet-adapter-modal-list li {
+  @apply !bg-solana-dark-700/50 hover:!bg-solana-dark-700 !rounded-xl !mb-2;
+}
+
+.wallet-adapter-modal-list li button {
+  @apply !text-white;
+}

@@ -6,3 +6,4 @@ export * from './revenue';
 export * from './user';
 export * as dividendsApi from './dividends';
 export * as statsApi from './stats';
+export * as investApi from './invest';

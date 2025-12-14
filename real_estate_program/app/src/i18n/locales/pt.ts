@@ -68,6 +68,7 @@ export default {
     exploreProperties: 'Explorar Propriedades',
     propertiesListed: 'Propriedades Listadas',
     avgAnnualYield: 'Yield Médio Anual',
+    totalInvested: 'Total Investido',
     globalAccessTitle: 'Acesso Global',
     globalAccessDesc: 'Invista em imóveis premium de qualquer lugar do mundo com apenas uma wallet Solana.',
     kycProtectedTitle: 'Proteção KYC',

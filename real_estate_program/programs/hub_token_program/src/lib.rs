@@ -199,4 +199,45 @@ pub mod hub_token_program {
     pub fn claim_revenue(ctx: Context<ClaimRevenue>) -> Result<()> {
         instructions::revenue_vault::handler_claim_revenue(ctx)
     }
+
+    // ========================================================================
+    // INVESTMENT VAULT - Property Investment with Payment
+    // ========================================================================
+
+    /// Initialize investment vault for a property
+    ///
+    /// Must be called before accepting investments. Sets up the vault
+    /// to track escrow, reserve fund, and fee distribution.
+    ///
+    /// # Access Control
+    /// - Only property authority can initialize
+    pub fn initialize_investment_vault(ctx: Context<InitializeInvestmentVault>) -> Result<()> {
+        instructions::invest_in_property::handler_initialize_vault(ctx)
+    }
+
+    /// Invest in a property - pay SOL and receive tokens
+    ///
+    /// This is the main investment instruction that:
+    /// 1. Verifies KYC via Hub Credential
+    /// 2. Transfers SOL from investor with distribution:
+    ///    - 2.5% → Platform Treasury (Kota fee)
+    ///    - 7.5% → Reserve Fund (maintenance/guarantee)
+    ///    - 90%  → Seller (property owner)
+    /// 3. Mints property tokens to investor
+    ///
+    /// # Arguments
+    /// * `sol_amount` - Amount of SOL to invest (in lamports)
+    /// * `expected_tokens` - Expected tokens to receive (slippage protection)
+    ///
+    /// # Security
+    /// - Atomic transaction: payment + mint happen together
+    /// - KYC verification required
+    /// - Slippage protection via expected_tokens
+    pub fn invest_in_property(
+        ctx: Context<InvestInProperty>,
+        sol_amount: u64,
+        expected_tokens: u64,
+    ) -> Result<()> {
+        instructions::invest_in_property::handler(ctx, sol_amount, expected_tokens)
+    }
 }

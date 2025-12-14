@@ -12,6 +12,7 @@ import {
   Globe,
   Lock,
   Users,
+  DollarSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -38,6 +39,17 @@ export const HomePage: FC = () => {
   // Format number with locale (e.g., 2450 -> "2,450")
   const formatNumber = (value: number) => {
     return value.toLocaleString();
+  };
+
+  // Format currency (e.g., 1250000 -> "$1.25M")
+  const formatCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(2)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(1)}K`;
+    }
+    return `$${value.toFixed(0)}`;
   };
 
   return (
@@ -72,7 +84,13 @@ export const HomePage: FC = () => {
       </section>
 
       {/* Stats */}
-      <StatsGrid cols={3}>
+      <StatsGrid cols={4}>
+        <StatCard
+          title={t('home.totalInvested')}
+          value={formatCurrency(platformStats?.totalValueLocked || 0)}
+          icon={<DollarSign className="w-6 h-6 text-solana-purple-400" />}
+          iconBg="bg-solana-purple-500/20"
+        />
         <StatCard
           title={t('home.propertiesListed')}
           value={platformStats?.totalProperties || 0}

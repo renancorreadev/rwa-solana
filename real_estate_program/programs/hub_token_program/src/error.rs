@@ -85,4 +85,29 @@ pub enum RwaError {
 
     #[msg("Credential suspended: contact support")]
     CredentialSuspended,
+
+    // Investment Vault Errors
+    #[msg("Investment vault not initialized")]
+    VaultNotInitialized,
+
+    #[msg("Investment vault already initialized")]
+    VaultAlreadyInitialized,
+
+    #[msg("Invalid seller address")]
+    InvalidSeller,
+
+    #[msg("Invalid platform treasury")]
+    InvalidPlatformTreasury,
+
+    #[msg("No funds available for withdrawal")]
+    NoFundsAvailable,
+
+    #[msg("Milestone not reached: cannot release funds")]
+    MilestoneNotReached,
+
+    #[msg("Invalid investment amount: must be greater than zero")]
+    InvalidInvestmentAmount,
+
+    #[msg("Insufficient SOL balance for investment")]
+    InsufficientSolBalance,
 }

@@ -71,3 +71,44 @@ pub struct ExtraAccountMetasInitialized {
     pub extra_account_meta_list: Pubkey,
     pub timestamp: i64,
 }
+
+// ============================================================================
+// INVESTMENT EVENTS
+// ============================================================================
+
+#[event]
+pub struct InvestmentVaultInitialized {
+    pub property_mint: Pubkey,
+    pub seller: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct InvestmentMade {
+    pub property_mint: Pubkey,
+    pub investor: Pubkey,
+    pub sol_amount: u64,
+    pub tokens_received: u64,
+    pub platform_fee: u64,
+    pub reserve_amount: u64,
+    pub escrow_amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct MilestoneReached {
+    pub property_mint: Pubkey,
+    pub milestone: u8,
+    pub circulation_percent: u16,
+    pub amount_released: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct SellerWithdrawal {
+    pub property_mint: Pubkey,
+    pub seller: Pubkey,
+    pub amount: u64,
+    pub remaining_escrow: u64,
+    pub timestamp: i64,
+}

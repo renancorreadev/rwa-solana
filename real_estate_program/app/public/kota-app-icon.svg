@@ -1,0 +1,12 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="64" height="64" fill="url(#gradStoreBg)"/>
+<defs><linearGradient id="gradStoreBg" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#9945FF"/><stop offset="100%" stop-color="#14F195"/></linearGradient></defs>
+<g transform="translate(0, -2)">
+<path d="M32 2L58 20H6C6 20 32 2 32 2Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round"/>
+<rect x="6" y="24" width="24" height="18" rx="2" fill="#FFFFFF"/>
+<rect x="34" y="24" width="24" height="18" rx="2" fill="#FFFFFF"/>
+<rect x="6" y="46" width="24" height="18" rx="2" fill="#FFFFFF"/>
+<rect x="36" y="48" width="20" height="14" rx="1" fill="#FFFFFF" fill-opacity="0.3" stroke="white" stroke-width="2"/>
+</g>
+</svg>
+                
