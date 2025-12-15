@@ -500,8 +500,8 @@ export const AdminPage: FC = () => {
     return (
       <EmptyState
         icon={<Shield className="w-10 h-10" />}
-        title="Connect Admin Wallet"
-        description="Connect the admin wallet to access the administration panel."
+        title={t('admin.connectAdminWallet')}
+        description={t('admin.connectAdminDescription')}
       />
     );
   }
@@ -513,8 +513,8 @@ export const AdminPage: FC = () => {
     return (
       <EmptyState
         icon={<AlertTriangle className="w-10 h-10 text-red-400" />}
-        title="Unauthorized Access"
-        description={`This wallet is not authorized. Admin wallet: ${ADMIN_WALLET.slice(0, 8)}...${ADMIN_WALLET.slice(-8)}`}
+        title={t('admin.unauthorizedAccess')}
+        description={`${t('admin.unauthorizedDescription')} ${ADMIN_WALLET.slice(0, 8)}...${ADMIN_WALLET.slice(-8)}`}
       />
     );
   }
@@ -533,7 +533,7 @@ export const AdminPage: FC = () => {
           onClick={fetchProperties}
           leftIcon={<RefreshCw className="w-4 h-4" />}
         >
-          Refresh
+          {t('admin.refresh')}
         </Button>
       </div>
 
@@ -558,7 +558,7 @@ export const AdminPage: FC = () => {
                   className="mt-2 inline-flex items-center gap-1 text-sm text-solana-purple-400 hover:text-solana-purple-300"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  View on Explorer
+                  {t('admin.viewOnExplorer')}
                 </a>
               )}
             </div>
@@ -598,9 +598,9 @@ export const AdminPage: FC = () => {
           {properties.length === 0 ? (
             <Card className="p-8 text-center">
               <Building2 className="w-12 h-12 text-solana-dark-400 mx-auto mb-4" />
-              <p className="text-solana-dark-400">No properties created yet</p>
+              <p className="text-solana-dark-400">{t('admin.noPropertiesYet')}</p>
               <Button className="mt-4" onClick={() => setActiveTab('create')}>
-                Create First Property
+                {t('admin.createFirstProperty')}
               </Button>
             </Card>
           ) : (
@@ -612,24 +612,24 @@ export const AdminPage: FC = () => {
                       <h3 className="text-lg font-semibold text-white">{property.name}</h3>
                       <Badge variant="default">{property.symbol}</Badge>
                       <Badge variant={property.status === 'active' ? 'success' : 'warning'}>
-                        {property.status === 'active' ? 'Active' : 'Paused'}
+                        {property.status === 'active' ? t('admin.active') : t('admin.paused')}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <p className="text-solana-dark-400">Total Supply</p>
+                        <p className="text-solana-dark-400">{t('admin.totalSupply')}</p>
                         <p className="text-white font-medium">{parseInt(property.totalSupply).toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-solana-dark-400">Circulating</p>
+                        <p className="text-solana-dark-400">{t('admin.circulatingSupply')}</p>
                         <p className="text-white font-medium">{parseInt(property.circulatingSupply).toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-solana-dark-400">Value (USD)</p>
+                        <p className="text-solana-dark-400">{t('admin.totalValue')}</p>
                         <p className="text-white font-medium">${property.details.totalValueUsd.toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-solana-dark-400">Yield</p>
+                        <p className="text-solana-dark-400">{t('admin.yield')}</p>
                         <p className="text-white font-medium">{property.details.annualYieldPercent}%</p>
                       </div>
                     </div>
@@ -654,7 +654,7 @@ export const AdminPage: FC = () => {
                       onClick={() => handleToggleStatus(property.mint)}
                       leftIcon={<Power className="w-4 h-4" />}
                     >
-                      {property.status === 'active' ? 'Pause' : 'Activate'}
+                      {property.status === 'active' ? t('admin.pause') : t('admin.activate')}
                     </Button>
                     <Button
                       variant="ghost"
@@ -696,7 +696,7 @@ export const AdminPage: FC = () => {
               <label className="block text-sm font-medium text-solana-dark-300 mb-2">
                 <span className="flex items-center gap-2">
                   <ImageIcon className="w-4 h-4" />
-                  Property Images
+                  {t('admin.propertyImages')}
                 </span>
               </label>
               <ImageUploader
@@ -765,20 +765,20 @@ export const AdminPage: FC = () => {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Property Type</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.propertyType')}</label>
                 <select
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
                   value={createForm.propertyType}
                   onChange={(e) => setCreateForm({ ...createForm, propertyType: e.target.value })}
                 >
-                  <option value="residential">Residential</option>
-                  <option value="commercial">Commercial</option>
-                  <option value="industrial">Industrial</option>
-                  <option value="mixed">Mixed Use</option>
+                  <option value="residential">{t('admin.residential')}</option>
+                  <option value="commercial">{t('admin.commercial')}</option>
+                  <option value="industrial">{t('admin.industrial')}</option>
+                  <option value="mixed">{t('admin.mixedUse')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Location</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.location')}</label>
                 <input
                   type="text"
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
@@ -789,7 +789,7 @@ export const AdminPage: FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Property Address</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.propertyAddress')}</label>
                 <input
                   type="text"
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
@@ -802,8 +802,8 @@ export const AdminPage: FC = () => {
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
                   <DollarSign className="w-4 h-4 mr-1 text-solana-green-400" />
-                  Seller Wallet (Recebe 90% dos investimentos)
-                  <InfoTooltip text="Endereço da carteira Solana que receberá 90% do valor de cada investimento. Normalmente é a carteira da imobiliária ou proprietário do imóvel." />
+                  {t('admin.sellerWallet')}
+                  <InfoTooltip text={t('admin.sellerWalletDescription')} />
                 </label>
                 <input
                   type="text"
@@ -816,13 +816,13 @@ export const AdminPage: FC = () => {
                   maxLength={44}
                 />
                 <p className="mt-1 text-xs text-solana-dark-400">
-                  💰 Esta carteira receberá automaticamente 90% de cada investimento em SOL
+                  💰 {t('admin.sellerWalletHelp')}
                 </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                  Total Value (USD)
-                  <InfoTooltip text="Valor total de avaliação do imóvel em dólares. Este valor será dividido pelo preço por token para calcular o total de tokens." />
+                  {t('admin.totalValueUsd')}
+                  <InfoTooltip text={t('admin.totalValueTooltip')} />
                 </label>
                 <input
                   type="number"
@@ -836,8 +836,8 @@ export const AdminPage: FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                  Value Per Token (USD)
-                  <InfoTooltip text="Preço unitário de cada token. Valores menores permitem investimentos mais acessíveis. Ex: $5 por token permite investimentos a partir de $5." />
+                  {t('admin.valuePerToken')}
+                  <InfoTooltip text={t('admin.valuePerTokenTooltip')} />
                 </label>
                 <input
                   type="number"
@@ -852,8 +852,8 @@ export const AdminPage: FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                  Aluguel Mensal (USD)
-                  <InfoTooltip text="Valor do aluguel mensal esperado. Se preenchido, o Yield será calculado automaticamente: (Aluguel × 12) ÷ Valor do Imóvel × 100" />
+                  {t('admin.monthlyRent')}
+                  <InfoTooltip text={t('admin.monthlyRentTooltip')} />
                 </label>
                 <input
                   type="number"
@@ -865,13 +865,13 @@ export const AdminPage: FC = () => {
                   min={0}
                 />
                 <p className="mt-1 text-xs text-solana-dark-500">
-                  💡 Preencha para calcular o Yield automaticamente
+                  💡 {t('admin.monthlyRentHelp')}
                 </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                  Annual Yield (%)
-                  <InfoTooltip text="Rendimento anual esperado. Se você preencheu o aluguel mensal, este campo é calculado automaticamente. Senão, insira manualmente." />
+                  {t('admin.annualYield')}
+                  <InfoTooltip text={t('admin.annualYieldTooltip')} />
                 </label>
                 <input
                   type="number"
@@ -902,40 +902,36 @@ export const AdminPage: FC = () => {
               <div className="bg-solana-dark-800/50 border border-solana-dark-600 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <Calculator className="w-5 h-5 text-solana-purple-400" />
-                  <h4 className="text-white font-medium">Cálculos Automáticos</h4>
+                  <h4 className="text-white font-medium">{t('admin.autoCalculations')}</h4>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-solana-dark-700/50 rounded-lg p-3">
                     <p className="text-xs text-solana-dark-400 mb-1 flex items-center">
-                      Total de Tokens
-                      <InfoTooltip text="Quantidade total de tokens = Valor do Imóvel ÷ Preço por Token" />
+                      {t('admin.totalTokens')}
                     </p>
                     <p className="text-lg font-bold text-white">{calculations.totalSupply.toLocaleString()}</p>
                   </div>
                   <div className="bg-solana-dark-700/50 rounded-lg p-3">
                     <p className="text-xs text-solana-dark-400 mb-1 flex items-center">
-                      Receita Anual
-                      <InfoTooltip text="Receita anual esperada = Valor do Imóvel × Yield%" />
+                      {t('admin.annualRevenue')}
                     </p>
                     <p className="text-lg font-bold text-solana-green-400">${calculations.annualRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                   </div>
                   <div className="bg-solana-dark-700/50 rounded-lg p-3">
                     <p className="text-xs text-solana-dark-400 mb-1 flex items-center">
-                      Receita/Token/Ano
-                      <InfoTooltip text="Rendimento anual de cada token = Receita Anual ÷ Total de Tokens" />
+                      {t('admin.revenuePerTokenYear')}
                     </p>
                     <p className="text-lg font-bold text-solana-green-400">${calculations.revenuePerToken.toFixed(2)}</p>
                   </div>
                   <div className="bg-solana-dark-700/50 rounded-lg p-3">
                     <p className="text-xs text-solana-dark-400 mb-1 flex items-center">
-                      Receita/Token/Mês
-                      <InfoTooltip text="Rendimento mensal de cada token = Receita Anual ÷ 12 ÷ Total de Tokens" />
+                      {t('admin.revenuePerTokenMonth')}
                     </p>
                     <p className="text-lg font-bold text-solana-green-400">${calculations.monthlyPerToken.toFixed(3)}</p>
                   </div>
                 </div>
                 <p className="text-xs text-solana-dark-400 mt-3 text-center">
-                  💡 Com 10 tokens (${(parseFloat(createForm.valuePerToken) * 10).toFixed(2)}), você receberia ~${(calculations.monthlyPerToken * 10).toFixed(2)}/mês
+                  💡 {t('admin.exampleInvestment', { tokens: 10, value: (parseFloat(createForm.valuePerToken) * 10).toFixed(2), monthly: (calculations.monthlyPerToken * 10).toFixed(2) })}
                 </p>
               </div>
             )}
@@ -948,7 +944,7 @@ export const AdminPage: FC = () => {
               {isCreatingMetadata ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Creating Metadata on IPFS...
+                  {t('admin.creatingMetadata')}
                 </>
               ) : isSubmitting ? (
                 t('admin.creating')
@@ -958,7 +954,7 @@ export const AdminPage: FC = () => {
             </Button>
             {uploadedImages.some((img) => img.isUploading) && (
               <p className="text-xs text-center text-solana-dark-400">
-                Please wait for all images to finish uploading
+                {t('admin.waitImagesUpload')}
               </p>
             )}
           </form>
@@ -997,7 +993,7 @@ export const AdminPage: FC = () => {
                 required
               />
               <p className="mt-1 text-xs text-solana-dark-400">
-                Investor must have valid KYC credential to receive tokens
+                {t('admin.investorKycRequired')}
               </p>
             </div>
             <div>
@@ -1029,12 +1025,12 @@ export const AdminPage: FC = () => {
                 <DollarSign className="w-6 h-6 text-solana-purple-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">Como funciona a distribuição de receitas?</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">{t('admin.revenueDistributionTitle')}</h3>
                 <div className="text-sm text-solana-dark-300 space-y-2">
-                  <p><strong>1. Epoch:</strong> Cada depósito cria uma "época" de distribuição (ex: Epoch #1 = Janeiro, Epoch #2 = Fevereiro)</p>
-                  <p><strong>2. Snapshot:</strong> O sistema registra o supply circulante no momento do depósito</p>
-                  <p><strong>3. Proporcional:</strong> Cada investidor pode reivindicar sua parte: <code className="bg-solana-dark-800 px-1 rounded">(tokens_investidor / supply_total) × valor_depositado</code></p>
-                  <p><strong>4. Claim:</strong> Investidores acessam o portfólio e clicam em "Claim" para receber SOL</p>
+                  <p><strong>1. {t('admin.revenueDistributionEpoch')}</strong></p>
+                  <p><strong>2. {t('admin.revenueDistributionSnapshot')}</strong></p>
+                  <p><strong>3. {t('admin.revenueDistributionProportional')}</strong>: <code className="bg-solana-dark-800 px-1 rounded">(tokens_investidor / supply_total) × valor_depositado</code></p>
+                  <p><strong>4. {t('admin.revenueDistributionClaim')}</strong></p>
                 </div>
               </div>
             </div>
@@ -1045,17 +1041,17 @@ export const AdminPage: FC = () => {
             <h3 className="text-lg font-semibold text-white mb-6">{t('admin.depositRevenue')}</h3>
             <form onSubmit={handleDepositRevenue} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-solana-dark-300 mb-2">Propriedade</label>
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2">{t('admin.property')}</label>
                 <select
                   className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none"
                   value={revenueForm.propertyMint}
                   onChange={(e) => setRevenueForm({ ...revenueForm, propertyMint: e.target.value })}
                   required
                 >
-                  <option value="">Selecione uma propriedade</option>
+                  <option value="">{t('admin.selectAProperty')}</option>
                   {properties.map((p) => (
                     <option key={p.mint} value={p.mint}>
-                      {p.name} ({p.symbol}) - {parseInt(p.circulatingSupply).toLocaleString()} tokens em circulação
+                      {p.name} ({p.symbol}) - {parseInt(p.circulatingSupply).toLocaleString()} {t('admin.tokensInCirculation')}
                     </option>
                   ))}
                 </select>
@@ -1071,33 +1067,33 @@ export const AdminPage: FC = () => {
 
                 return (
                   <div className="bg-solana-dark-800/50 border border-solana-dark-600 rounded-xl p-4">
-                    <h4 className="text-sm font-medium text-solana-dark-300 mb-3">Detalhes da Propriedade</h4>
+                    <h4 className="text-sm font-medium text-solana-dark-300 mb-3">{t('admin.propertyDetails')}</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <p className="text-solana-dark-400">Supply Total</p>
+                        <p className="text-solana-dark-400">{t('admin.totalSupply')}</p>
                         <p className="text-white font-medium">{parseInt(selectedProperty.totalSupply).toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-solana-dark-400">Em Circulação</p>
+                        <p className="text-solana-dark-400">{t('admin.circulatingSupply')}</p>
                         <p className="text-white font-medium">{circulatingSupply.toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-solana-dark-400">Valor USD</p>
+                        <p className="text-solana-dark-400">{t('admin.totalValue')}</p>
                         <p className="text-white font-medium">${selectedProperty.details.totalValueUsd.toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-solana-dark-400">Yield Anual</p>
+                        <p className="text-solana-dark-400">{t('admin.yield')}</p>
                         <p className="text-white font-medium">{selectedProperty.details.annualYieldPercent}%</p>
                       </div>
                     </div>
                     {amountSol > 0 && circulatingSupply > 0 && (
                       <div className="mt-4 pt-4 border-t border-solana-dark-600">
                         <div className="flex items-center justify-between">
-                          <span className="text-solana-dark-400">Valor por token:</span>
+                          <span className="text-solana-dark-400">{t('admin.valuePerTokenLabel')}</span>
                           <span className="text-solana-green-400 font-bold">{perToken.toFixed(8)} SOL</span>
                         </div>
                         <p className="text-xs text-solana-dark-500 mt-1">
-                          Investidor com 10,000 tokens receberá: {(perToken * 10000).toFixed(4)} SOL
+                          {t('admin.investorExample', { tokens: '10,000', amount: (perToken * 10000).toFixed(4) })}
                         </p>
                       </div>
                     )}
@@ -1107,8 +1103,8 @@ export const AdminPage: FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                  Número da Epoch
-                  <InfoTooltip text="Número sequencial do período de distribuição. Use 1 para a primeira distribuição, 2 para a segunda, etc. Cada epoch só pode ser usada uma vez." />
+                  {t('admin.epochNumber')}
+                  <InfoTooltip text={t('admin.epochTooltip')} />
                 </label>
                 <input
                   type="number"
@@ -1125,20 +1121,20 @@ export const AdminPage: FC = () => {
                   return (
                     <div className="mt-2 flex items-center gap-2">
                       <p className="text-xs text-solana-dark-400">
-                        💡 Próxima epoch sugerida: <span className="text-solana-purple-400 font-bold">#{nextEpoch}</span>
+                        💡 {t('admin.nextEpochSuggestion')} <span className="text-solana-purple-400 font-bold">#{nextEpoch}</span>
                       </p>
                       <button
                         type="button"
                         className="text-xs text-solana-purple-400 hover:text-solana-purple-300 underline"
                         onClick={() => setRevenueForm({ ...revenueForm, epochNumber: nextEpoch.toString() })}
                       >
-                        Usar #{nextEpoch}
+                        {t('admin.useEpoch', { number: nextEpoch })}
                       </button>
                     </div>
                   );
                 })()}
                 <p className="mt-1 text-xs text-yellow-400">
-                  ⚠️ Cada epoch só pode ser usada UMA vez! Se a transação falhar com "already in use", use o próximo número.
+                  ⚠️ {t('admin.epochWarning')}
                 </p>
               </div>
 
@@ -1150,8 +1146,8 @@ export const AdminPage: FC = () => {
                       <span className="text-white font-bold text-xs">◎</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-white">Cotação Solana</p>
-                      <p className="text-xs text-solana-dark-400">via CoinGecko</p>
+                      <p className="text-sm font-medium text-white">{t('admin.solQuote')}</p>
+                      <p className="text-xs text-solana-dark-400">{t('admin.viaCoinGecko')}</p>
                     </div>
                   </div>
                   <Button
@@ -1161,7 +1157,7 @@ export const AdminPage: FC = () => {
                     disabled={isFetchingSolPrice}
                     leftIcon={<RefreshCw className={`w-3 h-3 ${isFetchingSolPrice ? 'animate-spin' : ''}`} />}
                   >
-                    Atualizar
+                    {t('admin.update')}
                   </Button>
                 </div>
                 {solPrice.brl > 0 ? (
@@ -1177,12 +1173,12 @@ export const AdminPage: FC = () => {
                   </div>
                 ) : (
                   <div className="text-center py-3 text-solana-dark-400">
-                    {isFetchingSolPrice ? 'Buscando cotação...' : 'Clique em Atualizar para buscar cotação'}
+                    {isFetchingSolPrice ? t('admin.fetchingQuote') : t('admin.clickToFetch')}
                   </div>
                 )}
                 {solPrice.lastUpdated && (
                   <p className="text-xs text-solana-dark-500 mt-2 text-center">
-                    Última atualização: {solPrice.lastUpdated.toLocaleTimeString('pt-BR')}
+                    {t('admin.lastUpdate')} {solPrice.lastUpdated.toLocaleTimeString('pt-BR')}
                   </p>
                 )}
               </div>
@@ -1191,8 +1187,8 @@ export const AdminPage: FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                    💰 Valor do Aluguel (R$)
-                    <InfoTooltip text="Digite o valor do aluguel recebido em Reais. O sistema calculará automaticamente o equivalente em SOL baseado na cotação atual." />
+                    💰 {t('admin.rentValueBrl')}
+                    <InfoTooltip text={t('admin.rentValueBrlTooltip')} />
                   </label>
                   <input
                     type="number"
@@ -1204,14 +1200,14 @@ export const AdminPage: FC = () => {
                     min={0}
                   />
                   <p className="mt-1 text-xs text-solana-dark-400">
-                    Valor original do aluguel em Reais
+                    {t('admin.originalRentValue')}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
-                    ◎ Valor em SOL
-                    <InfoTooltip text="Quantidade de SOL a ser distribuída. Este valor é calculado automaticamente quando você preenche o valor em BRL, ou pode ser editado manualmente." />
+                    ◎ {t('admin.valueSol')}
+                    <InfoTooltip text={t('admin.valueSolTooltip')} />
                   </label>
                   <input
                     type="number"
@@ -1229,11 +1225,11 @@ export const AdminPage: FC = () => {
                   />
                   {revenueForm.amountBrl && solPrice.brl > 0 && (
                     <p className="mt-1 text-xs text-solana-green-400">
-                      ⚡ Calculado: R$ {parseFloat(revenueForm.amountBrl).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ÷ R$ {solPrice.brl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      ⚡ {t('admin.calculatedValue')} R$ {parseFloat(revenueForm.amountBrl).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ÷ R$ {solPrice.brl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   )}
                   <p className="mt-1 text-xs text-solana-dark-400">
-                    ⚠️ Este valor será transferido da carteira admin para o cofre
+                    ⚠️ {t('admin.transferWarning')}
                   </p>
                 </div>
               </div>
@@ -1246,27 +1242,27 @@ export const AdminPage: FC = () => {
 
           {/* Recent Deposits Info */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Exemplo de Fluxo</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">{t('admin.flowExample')}</h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-3 p-3 bg-solana-dark-800/50 rounded-lg">
                 <div className="w-8 h-8 rounded-full bg-solana-purple-500/20 flex items-center justify-center text-solana-purple-400 font-bold">1</div>
                 <div>
-                  <p className="text-white">Admin deposita 0.1 SOL na Epoch #1</p>
-                  <p className="text-solana-dark-400">Supply circulante: 250,000 tokens</p>
+                  <p className="text-white">{t('admin.flowStep1', { amount: '0.1', epoch: '1' })}</p>
+                  <p className="text-solana-dark-400">{t('admin.flowStep1Detail', { supply: '250,000' })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-solana-dark-800/50 rounded-lg">
                 <div className="w-8 h-8 rounded-full bg-solana-green-500/20 flex items-center justify-center text-solana-green-400 font-bold">2</div>
                 <div>
-                  <p className="text-white">Investidor com 125,000 tokens (50%)</p>
-                  <p className="text-solana-dark-400">Pode reivindicar: 0.05 SOL</p>
+                  <p className="text-white">{t('admin.flowStep2', { tokens: '125,000', percent: '50' })}</p>
+                  <p className="text-solana-dark-400">{t('admin.flowStep2Detail', { amount: '0.05' })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-solana-dark-800/50 rounded-lg">
                 <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">3</div>
                 <div>
-                  <p className="text-white">Investidor acessa Portfólio e clica "Claim"</p>
-                  <p className="text-solana-dark-400">SOL é transferido para a carteira do investidor</p>
+                  <p className="text-white">{t('admin.flowStep3')}</p>
+                  <p className="text-solana-dark-400">{t('admin.flowStep3Detail')}</p>
                 </div>
               </div>
             </div>
