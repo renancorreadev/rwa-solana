@@ -31,6 +31,7 @@ export interface CreatePropertyInput {
   name: string;
   symbol: string;
   totalSupply: number;
+  sellerWallet?: string; // Wallet that receives 90% of investments
   details: {
     propertyType: string;
     propertyAddress: string;
@@ -138,12 +139,18 @@ export class AdminService {
 
     // 2. Call create_property_mint instruction
     // The program handles: mint creation, TransferHook init, mint init, PDAs
+    // Use seller wallet from input, or default to admin wallet
+    const sellerWalletPubkey = input.sellerWallet
+      ? new PublicKey(input.sellerWallet)
+      : this.adminKeypair.publicKey;
+
     const createPropertyIx = await program.methods
       .createPropertyMint(
         input.name,
         input.symbol,
         decimals,
         new BN(totalSupplyWithDecimals.toString()),
+        sellerWalletPubkey,
         {
           propertyAddress: input.details.propertyAddress,
           propertyType: input.details.propertyType,

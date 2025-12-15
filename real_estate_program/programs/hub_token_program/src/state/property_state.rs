@@ -8,6 +8,10 @@ pub struct PropertyState {
     /// Authority who can mint tokens and update property details
     pub authority: Pubkey,
 
+    /// Seller wallet that receives 90% of investments
+    /// This is the property owner/real estate company
+    pub seller_wallet: Pubkey,
+
     /// Token-2022 mint address for this property
     pub mint: Pubkey,
 

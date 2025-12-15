@@ -46,7 +46,7 @@ export class AdminController {
         return;
       }
 
-      const { name, symbol, totalSupply, details } = req.body;
+      const { name, symbol, totalSupply, sellerWallet, details } = req.body;
 
       // Validate required fields
       if (!name || !symbol || !totalSupply || !details) {
@@ -61,6 +61,7 @@ export class AdminController {
         name,
         symbol,
         totalSupply,
+        sellerWallet: sellerWallet || this.config.admin.walletAddress, // Default to admin if not provided
         details: {
           propertyType: details.propertyType || 'residential',
           propertyAddress: details.propertyAddress || '',

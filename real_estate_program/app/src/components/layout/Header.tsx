@@ -1,11 +1,11 @@
 import { FC, useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Bell, Search, Shield, Building2, MapPin, X } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { WalletConnectButton } from '../wallet/WalletConnectButton';
 import { propertiesApi } from '@/services/api';
 
 // Admin wallet address
@@ -193,9 +193,7 @@ export const Header: FC = () => {
             )}
 
             {/* Wallet Button */}
-            <div className="wallet-adapter-button-wrapper">
-              <WalletMultiButton />
-            </div>
+            <WalletConnectButton />
           </div>
         </div>
 

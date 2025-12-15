@@ -100,6 +100,7 @@ export const AdminPage: FC = () => {
     annualYieldPercent: '',
     propertyAddress: '',
     description: '',
+    sellerWallet: '',
   });
 
   // Image upload state
@@ -343,6 +344,7 @@ export const AdminPage: FC = () => {
           name: createForm.name,
           symbol: createForm.symbol,
           totalSupply: parseInt(createForm.totalSupply),
+          sellerWallet: createForm.sellerWallet,
           details: {
             propertyType: createForm.propertyType,
             location: createForm.location,
@@ -375,6 +377,7 @@ export const AdminPage: FC = () => {
           annualYieldPercent: '',
           propertyAddress: '',
           description: '',
+          sellerWallet: '',
         });
         setUploadedImages([]);
         fetchProperties();
@@ -795,6 +798,26 @@ export const AdminPage: FC = () => {
                   onChange={(e) => setCreateForm({ ...createForm, propertyAddress: e.target.value })}
                   required
                 />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">
+                  <DollarSign className="w-4 h-4 mr-1 text-solana-green-400" />
+                  Seller Wallet (Recebe 90% dos investimentos)
+                  <InfoTooltip text="Endereço da carteira Solana que receberá 90% do valor de cada investimento. Normalmente é a carteira da imobiliária ou proprietário do imóvel." />
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-solana-dark-800 border border-solana-dark-600 rounded-lg text-white focus:border-solana-purple-500 focus:outline-none font-mono"
+                  placeholder="Ex: 7XxW...uCJw (endereço Solana)"
+                  value={createForm.sellerWallet}
+                  onChange={(e) => setCreateForm({ ...createForm, sellerWallet: e.target.value })}
+                  required
+                  minLength={32}
+                  maxLength={44}
+                />
+                <p className="mt-1 text-xs text-solana-dark-400">
+                  💰 Esta carteira receberá automaticamente 90% de cada investimento em SOL
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-solana-dark-300 mb-2 flex items-center">

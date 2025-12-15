@@ -30,12 +30,13 @@ func NewSolanaClient(rpcURL string, programID string) (*SolanaClient, error) {
 }
 
 func (s *SolanaClient) FetchAllProperties(ctx context.Context) ([]models.Property, error) {
-	// Filter for PropertyState accounts (exactly 996 bytes)
+	// Filter for PropertyState accounts (1028 bytes with seller_wallet, or 996 bytes for old format)
+	// We'll fetch accounts >= 996 bytes and filter by discriminator
 	opts := &rpc.GetProgramAccountsOpts{
 		Commitment: rpc.CommitmentConfirmed,
 		Filters: []rpc.RPCFilter{
 			{
-				DataSize: 996,
+				DataSize: 1028, // Updated size with seller_wallet (996 + 32)
 			},
 		},
 	}
@@ -84,8 +85,8 @@ func (s *SolanaClient) FetchPropertyByPDA(ctx context.Context, pda string) (*mod
 }
 
 func (s *SolanaClient) parsePropertyState(pubkey solana.PublicKey, data []byte) (models.Property, error) {
-	if len(data) < 996 {
-		return models.Property{}, fmt.Errorf("invalid data size: %d", len(data))
+	if len(data) < 1028 {
+		return models.Property{}, fmt.Errorf("invalid data size: %d (expected 1028)", len(data))
 	}
 
 	offset := 0
@@ -95,6 +96,10 @@ func (s *SolanaClient) parsePropertyState(pubkey solana.PublicKey, data []byte) 
 
 	// Authority (Pubkey - 32 bytes)
 	authority := solana.PublicKeyFromBytes(data[offset : offset+32])
+	offset += 32
+
+	// SellerWallet (Pubkey - 32 bytes) - NEW
+	sellerWallet := solana.PublicKeyFromBytes(data[offset : offset+32])
 	offset += 32
 
 	// Mint (Pubkey - 32 bytes)
@@ -187,6 +192,7 @@ func (s *SolanaClient) parsePropertyState(pubkey solana.PublicKey, data []byte) 
 		Name:              name,
 		Symbol:            symbol,
 		Authority:         authority.String(),
+		SellerWallet:      sellerWallet.String(),
 		Status:            status,
 		TotalSupply:       int64(totalSupply),
 		CirculatingSupply: int64(circulatingSupply),

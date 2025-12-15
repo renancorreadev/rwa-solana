@@ -33,6 +33,7 @@ func (db *DB) Initialize() error {
 		name VARCHAR(255) NOT NULL,
 		symbol VARCHAR(10) NOT NULL,
 		authority VARCHAR(44) NOT NULL,
+		seller_wallet VARCHAR(44),
 		status VARCHAR(20) NOT NULL DEFAULT 'active',
 		total_supply BIGINT NOT NULL DEFAULT 0,
 		circulating_supply BIGINT NOT NULL DEFAULT 0,
@@ -59,6 +60,14 @@ func (db *DB) Initialize() error {
 	BEGIN
 		IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='properties' AND column_name='image') THEN
 			ALTER TABLE properties ADD COLUMN image TEXT;
+		END IF;
+	END $$;
+
+	-- Add seller_wallet column if it doesn't exist (for existing databases)
+	DO $$
+	BEGIN
+		IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='properties' AND column_name='seller_wallet') THEN
+			ALTER TABLE properties ADD COLUMN seller_wallet VARCHAR(44);
 		END IF;
 	END $$;
 	`

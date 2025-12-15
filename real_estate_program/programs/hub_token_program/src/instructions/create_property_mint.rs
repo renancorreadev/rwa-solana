@@ -61,6 +61,7 @@ pub fn handler(
     property_symbol: String,
     decimals: u8,
     total_supply: u64,
+    seller_wallet: Pubkey,
     property_details: PropertyDetails,
 ) -> Result<()> {
     // Validate inputs
@@ -137,6 +138,7 @@ pub fn handler(
     // Initialize PropertyState
     let property_state = &mut ctx.accounts.property_state;
     property_state.authority = authority.key();
+    property_state.seller_wallet = seller_wallet;
     property_state.mint = mint.key();
     property_state.property_name = property_name.clone();
     property_state.property_symbol = property_symbol.clone();

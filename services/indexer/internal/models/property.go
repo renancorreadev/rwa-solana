@@ -11,6 +11,7 @@ type Property struct {
 	Name              string    `json:"name" db:"name"`
 	Symbol            string    `json:"symbol" db:"symbol"`
 	Authority         string    `json:"authority" db:"authority"`
+	SellerWallet      string    `json:"sellerWallet" db:"seller_wallet"`
 	Status            string    `json:"status" db:"status"`
 	TotalSupply       int64     `json:"totalSupply" db:"total_supply"`
 	CirculatingSupply int64     `json:"circulatingSupply" db:"circulating_supply"`
@@ -30,6 +31,7 @@ type Property struct {
 type PropertyState struct {
 	Mint              [32]byte
 	Authority         [32]byte
+	SellerWallet      [32]byte
 	Discriminator     uint64
 	Name              string
 	Symbol            string

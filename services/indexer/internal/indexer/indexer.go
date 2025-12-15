@@ -161,16 +161,17 @@ func (idx *Indexer) fetchImageFromIPFS(metadataURI string) (string, error) {
 func (idx *Indexer) upsertProperty(property models.Property) error {
 	query := `
 		INSERT INTO properties (
-			mint, property_state_pda, name, symbol, authority, status,
+			mint, property_state_pda, name, symbol, authority, seller_wallet, status,
 			total_supply, circulating_supply, decimals, property_type,
 			location, total_value_usd, annual_yield, metadata_uri, image,
 			current_epoch, created_at, updated_at, last_indexed_slot
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW(), $17)
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW(), NOW(), $18)
 		ON CONFLICT (mint) DO UPDATE SET
 			property_state_pda = EXCLUDED.property_state_pda,
 			name = EXCLUDED.name,
 			symbol = EXCLUDED.symbol,
 			authority = EXCLUDED.authority,
+			seller_wallet = EXCLUDED.seller_wallet,
 			status = EXCLUDED.status,
 			total_supply = EXCLUDED.total_supply,
 			circulating_supply = EXCLUDED.circulating_supply,
@@ -192,6 +193,7 @@ func (idx *Indexer) upsertProperty(property models.Property) error {
 		property.Name,
 		property.Symbol,
 		property.Authority,
+		property.SellerWallet,
 		property.Status,
 		property.TotalSupply,
 		property.CirculatingSupply,
@@ -214,7 +216,7 @@ func (idx *Indexer) upsertProperty(property models.Property) error {
 }
 
 func (idx *Indexer) GetAllProperties(filter *models.PropertyFilter) ([]models.Property, error) {
-	query := `SELECT id, mint, property_state_pda, name, symbol, authority, status,
+	query := `SELECT id, mint, property_state_pda, name, symbol, authority, seller_wallet, status,
 		total_supply, circulating_supply, decimals, property_type, location,
 		total_value_usd, annual_yield, metadata_uri, image, current_epoch,
 		created_at, updated_at, last_indexed_slot FROM properties WHERE 1=1`
@@ -256,6 +258,7 @@ func (idx *Indexer) GetAllProperties(filter *models.PropertyFilter) ([]models.Pr
 	for rows.Next() {
 		var prop models.Property
 		var image sql.NullString
+		var sellerWallet sql.NullString
 		err := rows.Scan(
 			&prop.ID,
 			&prop.Mint,
@@ -263,6 +266,7 @@ func (idx *Indexer) GetAllProperties(filter *models.PropertyFilter) ([]models.Pr
 			&prop.Name,
 			&prop.Symbol,
 			&prop.Authority,
+			&sellerWallet,
 			&prop.Status,
 			&prop.TotalSupply,
 			&prop.CirculatingSupply,
@@ -284,6 +288,9 @@ func (idx *Indexer) GetAllProperties(filter *models.PropertyFilter) ([]models.Pr
 		if image.Valid {
 			prop.Image = image.String
 		}
+		if sellerWallet.Valid {
+			prop.SellerWallet = sellerWallet.String
+		}
 		properties = append(properties, prop)
 	}
 
@@ -291,13 +298,14 @@ func (idx *Indexer) GetAllProperties(filter *models.PropertyFilter) ([]models.Pr
 }
 
 func (idx *Indexer) GetPropertyByMint(mint string) (*models.Property, error) {
-	query := `SELECT id, mint, property_state_pda, name, symbol, authority, status,
+	query := `SELECT id, mint, property_state_pda, name, symbol, authority, seller_wallet, status,
 		total_supply, circulating_supply, decimals, property_type, location,
 		total_value_usd, annual_yield, metadata_uri, image, current_epoch,
 		created_at, updated_at, last_indexed_slot FROM properties WHERE mint = $1`
 
 	var prop models.Property
 	var image sql.NullString
+	var sellerWallet sql.NullString
 	err := idx.db.QueryRow(query, mint).Scan(
 		&prop.ID,
 		&prop.Mint,
@@ -305,6 +313,7 @@ func (idx *Indexer) GetPropertyByMint(mint string) (*models.Property, error) {
 		&prop.Name,
 		&prop.Symbol,
 		&prop.Authority,
+		&sellerWallet,
 		&prop.Status,
 		&prop.TotalSupply,
 		&prop.CirculatingSupply,
@@ -327,6 +336,9 @@ func (idx *Indexer) GetPropertyByMint(mint string) (*models.Property, error) {
 
 	if image.Valid {
 		prop.Image = image.String
+	}
+	if sellerWallet.Valid {
+		prop.SellerWallet = sellerWallet.String
 	}
 
 	return &prop, nil

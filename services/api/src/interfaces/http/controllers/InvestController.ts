@@ -9,6 +9,9 @@ import { Config } from '../../../infrastructure/config/Config';
 // Platform Treasury Address (receives 2.5% fee)
 const PLATFORM_TREASURY = 'AMuiRHoJLS2zhpRtUqVJUpYi4xEGbZcmMsJpqVT9uCJw';
 
+// Reserve Fund Treasury Address (receives 7.5% for property maintenance/protection)
+const RESERVE_TREASURY = '34JKXfYohYJx3gH7BtGwuGWrozz57tHoZp6ZPZChpxHH';
+
 // Fee distribution in basis points
 const PLATFORM_FEE_BPS = 250;  // 2.5%
 const RESERVE_FEE_BPS = 750;   // 7.5%
@@ -105,7 +108,8 @@ export class InvestController {
             },
           },
           platformTreasury: PLATFORM_TREASURY,
-          seller: property.authority, // Property owner receives seller portion
+          reserveTreasury: RESERVE_TREASURY,
+          seller: property.sellerWallet || property.authority, // Seller wallet receives 90% (fallback to authority)
           validFor: 60, // Quote valid for 60 seconds
           timestamp: Date.now(),
         },

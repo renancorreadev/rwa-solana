@@ -56,6 +56,7 @@ pub mod hub_token_program {
     /// * `property_symbol` - Token ticker (max 10 chars)
     /// * `decimals` - Token decimals (typically 6)
     /// * `total_supply` - Maximum tokens that can be minted
+    /// * `seller_wallet` - Wallet that receives 90% of investments
     /// * `property_details` - Metadata about the property
     pub fn create_property_mint(
         ctx: Context<CreatePropertyMint>,
@@ -63,6 +64,7 @@ pub mod hub_token_program {
         property_symbol: String,
         decimals: u8,
         total_supply: u64,
+        seller_wallet: Pubkey,
         property_details: PropertyDetails,
     ) -> Result<()> {
         instructions::create_property_mint::handler(
@@ -71,6 +73,7 @@ pub mod hub_token_program {
             property_symbol,
             decimals,
             total_supply,
+            seller_wallet,
             property_details,
         )
     }
