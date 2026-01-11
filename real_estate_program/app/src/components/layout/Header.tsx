@@ -121,21 +121,15 @@ export const Header: FC = () => {
   );
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-white/5">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
-          {/* Logo - Responsive */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            {/* Mobile: Icon only */}
-            <div className="lg:hidden w-9 h-9 rounded-xl bg-gradient-to-br from-solana-green-500 to-solana-purple-500 flex items-center justify-center shadow-lg shadow-solana-green-500/20">
-              <span className="text-lg font-bold text-white">K</span>
-            </div>
-            {/* Desktop: Full logo */}
-            <img src="/kota-logo.svg" alt="Kota Logo" className="hidden lg:block h-10" />
-          </Link>
+    <header className="sticky top-0 z-50 bg-solana-dark-950/80 backdrop-blur-xl border-b border-white/5">
+      <div className="flex items-center h-16 sm:h-18 lg:h-20">
+        {/* Logo - Absolute left edge */}
+        <Link to="/" className="flex-shrink-0 pl-4 lg:pl-6 pr-6 lg:pr-8 hover:opacity-80 transition-opacity">
+          <img src="/kota-logo.svg" alt="Kota Logo" className="h-10 sm:h-12 lg:h-14" />
+        </Link>
 
-          {/* Search - Desktop only */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-8" ref={searchRef}>
+        {/* Center area with search */}
+        <div className="hidden lg:flex flex-1 max-w-xl" ref={searchRef}>
             <div className="relative w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-solana-dark-400" />
               <input
@@ -158,12 +152,15 @@ export const Header: FC = () => {
             </div>
           </div>
 
+          {/* Spacer to push actions to right */}
+          <div className="flex-1" />
+
           {/* Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 pr-4 lg:pr-6">
             {/* Mobile Search Button */}
             <button
               onClick={toggleMobileSearch}
-              className="lg:hidden p-2 rounded-xl bg-solana-dark-800/50 hover:bg-solana-dark-700/50 transition-colors"
+              className="lg:hidden p-2.5 rounded-xl bg-solana-dark-800/60 hover:bg-solana-dark-700/60 border border-solana-dark-700/50 transition-all duration-200"
             >
               <Search className="w-5 h-5 text-solana-dark-300" />
             </button>
@@ -177,7 +174,7 @@ export const Header: FC = () => {
             {isAdmin && (
               <button
                 onClick={() => navigate('/admin')}
-                className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 rounded-xl bg-solana-purple-500/20 hover:bg-solana-purple-500/30 transition-colors border border-solana-purple-500/30"
+                className="flex items-center gap-2 p-2.5 sm:px-4 sm:py-2.5 rounded-xl bg-solana-purple-500/10 hover:bg-solana-purple-500/20 transition-all duration-200 border border-solana-purple-500/30 hover:border-solana-purple-500/50"
               >
                 <Shield className="w-4 h-4 text-solana-purple-400" />
                 <span className="text-sm font-medium text-solana-purple-400 hidden sm:inline">{t('nav.admin')}</span>
@@ -186,9 +183,9 @@ export const Header: FC = () => {
 
             {/* Notifications - Hidden on mobile */}
             {connected && (
-              <button className="hidden sm:flex p-2.5 rounded-xl bg-solana-dark-800/50 hover:bg-solana-dark-700/50 transition-colors relative">
-                <Bell className="w-5 h-5 text-solana-dark-300" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-solana-green-500 rounded-full" />
+              <button className="hidden sm:flex p-2.5 rounded-xl bg-solana-dark-800/60 hover:bg-solana-dark-700/60 border border-solana-dark-700/50 transition-all duration-200 relative group">
+                <Bell className="w-5 h-5 text-solana-dark-300 group-hover:text-white transition-colors" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-solana-green-500 rounded-full animate-pulse" />
               </button>
             )}
 
@@ -199,7 +196,7 @@ export const Header: FC = () => {
 
         {/* Mobile Search Bar - Expandable */}
         {isMobileSearchOpen && (
-          <div className="lg:hidden pb-3" ref={mobileSearchRef}>
+          <div className="lg:hidden px-4 pb-4" ref={mobileSearchRef}>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-solana-dark-400" />
               <input
@@ -222,7 +219,6 @@ export const Header: FC = () => {
             </div>
           </div>
         )}
-      </div>
     </header>
   );
 };

@@ -10,23 +10,36 @@ import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { DividendsPage } from './pages/DividendsPage';
+import { DocsPage } from './pages/DocsPage';
 
 function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/properties" element={<PropertiesPage />} />
-        <Route path="/properties/:mint" element={<PropertyDetailPage />} />
-        <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/revenue" element={<RevenuePage />} />
-        <Route path="/kyc" element={<KycPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/dividends" element={<DividendsPage />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      {/* Documentation - separate layout */}
+      <Route path="/docs" element={<DocsPage />} />
+      <Route path="/docs/:pageId" element={<DocsPage />} />
+
+      {/* Main App with Layout */}
+      <Route
+        path="*"
+        element={
+          <Layout>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/properties" element={<PropertiesPage />} />
+              <Route path="/properties/:mint" element={<PropertyDetailPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/revenue" element={<RevenuePage />} />
+              <Route path="/kyc" element={<KycPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/dividends" element={<DividendsPage />} />
+            </Routes>
+          </Layout>
+        }
+      />
+    </Routes>
   );
 }
 

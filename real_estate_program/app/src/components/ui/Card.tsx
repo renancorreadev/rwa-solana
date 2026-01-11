@@ -14,9 +14,9 @@ export const Card: FC<CardProps> = ({
   ...props
 }) => {
   const variants = {
-    default: 'bg-solana-dark-900/50 backdrop-blur-xl border border-solana-dark-800 rounded-2xl',
-    hover: 'bg-solana-dark-900/50 backdrop-blur-xl border border-solana-dark-800 rounded-2xl hover:border-solana-dark-700 hover:bg-solana-dark-900/70 transition-all duration-300 cursor-pointer',
-    glass: 'bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl',
+    default: 'bg-solana-dark-900/60 backdrop-blur-xl border border-solana-dark-800/80 rounded-2xl shadow-xl shadow-black/10',
+    hover: 'bg-solana-dark-900/60 backdrop-blur-xl border border-solana-dark-800/80 rounded-2xl shadow-xl shadow-black/10 hover:border-solana-purple-500/30 hover:bg-solana-dark-900/80 hover:shadow-2xl hover:shadow-solana-purple-500/10 transition-all duration-300 cursor-pointer group',
+    glass: 'bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl shadow-black/10',
   };
 
   const paddings = {

@@ -36,11 +36,12 @@ export const DividendHistoryTable: FC<DividendHistoryTableProps> = ({
     }).format(value);
   };
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return '-';
     try {
       return format(new Date(dateStr), "dd/MM/yyyy HH:mm", { locale: dateLocale });
     } catch {
-      return dateStr;
+      return '-';
     }
   };
 

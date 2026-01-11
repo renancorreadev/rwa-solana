@@ -43,6 +43,19 @@ export default {
     settings: 'Configurações',
     help: 'Ajuda e Suporte',
     home: 'Início',
+    docs: 'Documentação',
+  },
+
+  // Documentation
+  docs: {
+    title: 'Documentação',
+    search: 'Buscar docs...',
+    backToApp: 'Voltar ao App',
+    backToDocs: 'Voltar para documentação',
+    pageNotFound: 'Página não encontrada',
+    previous: 'Anterior',
+    next: 'Próximo',
+    onThisPage: 'Nesta página',
   },
 
   // Dashboard / Home

@@ -11,25 +11,13 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS
+// CORS - Allow all origins (Kong handles CORS at gateway level)
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      if (config.cors.allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      // In development, allow localhost
-      if (config.nodeEnv === 'development' && origin.startsWith('http://localhost')) {
-        return callback(null, true);
-      }
-
-      return callback(new Error('Not allowed by CORS'));
-    },
+    origin: true, // Allow all origins
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   })
 );
 

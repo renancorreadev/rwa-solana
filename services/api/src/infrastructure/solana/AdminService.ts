@@ -139,18 +139,13 @@ export class AdminService {
 
     // 2. Call create_property_mint instruction
     // The program handles: mint creation, TransferHook init, mint init, PDAs
-    // Use seller wallet from input, or default to admin wallet
-    const sellerWalletPubkey = input.sellerWallet
-      ? new PublicKey(input.sellerWallet)
-      : this.adminKeypair.publicKey;
-
+    // Note: sellerWallet is stored off-chain, not in the on-chain instruction
     const createPropertyIx = await program.methods
       .createPropertyMint(
         input.name,
         input.symbol,
         decimals,
         new BN(totalSupplyWithDecimals.toString()),
-        sellerWalletPubkey,
         {
           propertyAddress: input.details.propertyAddress,
           propertyType: input.details.propertyType,

@@ -9,9 +9,9 @@ interface RevenueCardProps {
   epochNumber: number;
   propertyMint: string;
   propertyName: string;
-  totalRevenue: string;
+  totalRevenue?: string;
   claimableAmount: string;
-  depositedAt: string;
+  depositedAt?: string | null;
 }
 
 export function RevenueCard({
@@ -32,7 +32,16 @@ export function RevenueCard({
   };
 
   const claimableSOL = (parseInt(claimableAmount) / 1e9).toFixed(4);
-  const totalSOL = (parseInt(totalRevenue) / 1e9).toFixed(4);
+  const totalSOL = totalRevenue ? (parseInt(totalRevenue) / 1e9).toFixed(4) : claimableSOL;
+
+  const formatDepositedAt = () => {
+    if (!depositedAt) return '';
+    try {
+      return ` · ${formatDistanceToNow(new Date(depositedAt), { addSuffix: true })}`;
+    } catch {
+      return '';
+    }
+  };
 
   return (
     <Card className="hover:shadow-lg transition-shadow space-y-4">
@@ -42,7 +51,7 @@ export function RevenueCard({
           <h4 className="text-lg font-semibold text-white">{propertyName}</h4>
           <p className="flex items-center gap-2 mt-1 text-sm text-solana-dark-400">
             <Calendar className="h-3 w-3" />
-            Epoch #{epochNumber} · {formatDistanceToNow(new Date(depositedAt), { addSuffix: true })}
+            Epoch #{epochNumber}{formatDepositedAt()}
           </p>
         </div>
         <Badge variant="purple" className="flex items-center gap-1">

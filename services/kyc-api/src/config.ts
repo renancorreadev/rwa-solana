@@ -73,6 +73,6 @@ export const config = {
   },
 
   cors: {
-    allowedOrigins: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000').split(','),
+    allowedOrigins: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:5174,http://localhost:3000,https://rwa.hubweb3.com').split(','),
   },
 };

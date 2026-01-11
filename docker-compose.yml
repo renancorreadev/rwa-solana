@@ -50,8 +50,12 @@ services:
       - "3004:3003"
     env_file:
       - ./services/api/.env
+    environment:
+      - ADMIN_KEYPAIR_PATH=/app/admin-keypair.json
     volumes:
       - ./services/api/src:/app/src:ro
+      - ./services/api/admin-keypair.json:/app/admin-keypair.json:ro
+      - ./services/api/idl:/app/idl:ro
     restart: unless-stopped
     networks:
       - hub-network
